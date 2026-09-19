@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap');
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "IBM Plex Sans Arabic", sans-serif;
+  --font-display: "IBM Plex Sans Arabic", sans-serif;
+  --font-latin: "Manrope", sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-surface: var(--surface);
+  --color-primary: var(--primary);
+  --color-primary-bright: var(--primary-bright);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-glass-border: var(--glass-border);
+  --color-nav: var(--nav);
+  --color-overlay: var(--overlay);
+  --color-logo: var(--logo);
+  --color-whatsapp: var(--whatsapp);
+  --color-whatsapp-strong: var(--whatsapp-strong);
+  --color-whatsapp-foreground: var(--whatsapp-foreground);
+}
+
+:root {
+  --radius: 0.5rem;
+  color-scheme: light;
+  
+  /* New Color System */
+  --background: #FFFFFF;
+  --foreground: #0D2742;
+  
+  --card: #FFFFFF;
+  --card-foreground: #0D2742;
+  
+  --surface: #F7FAFC;
+  
+  --primary: #159DD3;
+  --primary-bright: #3BAFE0;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #F3EEE5;
+  --secondary-foreground: #0D2742;
+  
+  --muted: #EAF6FB;
+  --muted-foreground: #657585;
+  
+  --accent: #0D2742;
+  --accent-foreground: #FFFFFF;
+  
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #159DD3;
+  
+  --glass: rgb(255 255 255 / 0.85);
+  --glass-strong: rgb(255 255 255 / 0.95);
+  --glass-border: rgb(13 39 66 / 0.08);
+  
+  --nav: rgb(255 255 255 / 0.9);
+  --overlay: rgb(13 39 66 / 0.6);
+  --logo: #F7FAFC;
+  
+  --whatsapp: #25D366;
+  --whatsapp-strong: #128C7E;
+  --whatsapp-foreground: #FFFFFF;
+  
+  --shadow-primary: rgb(21 157 211 / 0.2);
+  --shadow-whatsapp: rgb(37 211 102 / 0.24);
+  --shadow-card: rgb(13 39 66 / 0.08);
+  --shadow-modal: rgb(13 39 66 / 0.15);
+  --shadow-nav: rgb(13 39 66 / 0.06);
+}
+
+.dark {
+  /* We maintain a refined dark mode based on Navy */
+  color-scheme: dark;
+  --background: #0B1E36;
+  --foreground: #F7FAFC;
+  
+  --card: #0D2742;
+  --card-foreground: #F7FAFC;
+  
+  --surface: #102F4D;
+  
+  --primary: #159DD3;
+  --primary-bright: #3BAFE0;
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: #1F456E;
+  --secondary-foreground: #F7FAFC;
+  
+  --muted: #163859;
+  --muted-foreground: #94A3B8;
+  
+  --accent: #EAF6FB;
+  --accent-foreground: #0D2742;
+  
+  --border: #1F456E;
+  --input: #1F456E;
+  --ring: #159DD3;
+  
+  --glass: rgb(11 30 54 / 0.6);
+  --glass-strong: rgb(11 30 54 / 0.85);
+  --glass-border: rgb(255 255 255 / 0.1);
+  
+  --nav: rgb(11 30 54 / 0.85);
+  --overlay: rgb(0 0 0 / 0.7);
+  --logo: #F7FAFC;
+  
+  --shadow-primary: rgb(21 157 211 / 0.28);
+  --shadow-whatsapp: rgb(37 211 102 / 0.24);
+  --shadow-card: rgb(0 0 0 / 0.25);
+  --shadow-modal: rgb(0 0 0 / 0.4);
+  --shadow-nav: rgb(0 0 0 / 0.2);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--color-background); color: var(--color-foreground); font-family: var(--font-sans); }
+  button, a, input, select { -webkit-tap-highlight-color: transparent; }
+  button, select { cursor: pointer; }
+  ::selection { background: color-mix(in oklab, var(--primary) 40%, transparent); }
+}
+
+.hero-grid {
+  background-image: linear-gradient(var(--glass-border) 1px, transparent 1px), linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: linear-gradient(to bottom, black 0%, black 72%, transparent 100%);
+}
+
+.bg-radial-primary { background: radial-gradient(circle at center, color-mix(in oklab, var(--primary) 28%, transparent), transparent 68%); }
+.section-band { background: color-mix(in oklab, var(--surface) 84%, var(--background)); }
+.section-kicker { color: var(--primary-bright); font-size: 0.75rem; font-weight: 700; }
+.section-title { margin-top: 0.85rem; font-size: clamp(2rem, 5vw, 4rem); font-weight: 600; line-height: 1.17; }
+.destination-card { border-radius: 0.75rem; transform-style: preserve-3d; perspective: 900px; }
+.destination-card::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1px transparent; transition: box-shadow 300ms ease; pointer-events: none; }
+.destination-card:hover::after { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--primary) 70%, transparent), inset 0 0 28px color-mix(in oklab, var(--primary) 10%, transparent); }
+.boarding-pass { border-radius: 0.75rem; background: linear-gradient(135deg, color-mix(in oklab, var(--primary) 10%, var(--surface)), var(--surface)); }
+.quote-shell { border-radius: 0.75rem; }
+.field-shell { display: flex; min-height: 4rem; flex-direction: column; justify-content: center; gap: 0.3rem; border: 1px solid var(--glass-border); border-radius: 0.7rem; background: var(--glass); padding: 0.7rem 0.85rem; }
+.field-shell > span { display: flex; align-items: center; gap: 0.35rem; color: var(--muted-foreground); font-size: 0.68rem; }
+.field-shell input, .field-shell select { min-width: 0; width: 100%; background: transparent; color: var(--foreground); font-size: 0.9rem; outline: none; }
+.field-shell input[type="date"] { color-scheme: inherit; }
+.field-shell option { background: var(--surface); }
+.field-shell button { display: grid; width: 1.8rem; height: 1.8rem; place-items: center; border-radius: 999px; background: var(--glass-strong); color: var(--foreground); }
+.ambient-chevron { position: absolute; width: 8rem; height: 4rem; border-top: 1px solid color-mix(in oklab, var(--primary) 25%, transparent); transform: skewX(-32deg) rotate(-14deg); opacity: 0.4; }
+.ambient-chevron-one { inset-inline-start: 5%; top: 24%; animation: float-mark 8s ease-in-out infinite; }
+.ambient-chevron-two { inset-inline-end: 8%; bottom: 18%; width: 12rem; animation: float-mark 11s ease-in-out infinite reverse; }
+.whatsapp-float::before { content: ""; position: absolute; inset: -6px; z-index: -1; border: 1px solid var(--whatsapp); border-radius: 999px; animation: breathe 2.2s ease-out infinite; }
+
+@keyframes float-mark { 50% { transform: translateY(-18px) skewX(-32deg) rotate(-10deg); opacity: 0.65; } }
+@keyframes breathe { 0% { transform: scale(0.8); opacity: 0.8; } 75%, 100% { transform: scale(1.35); opacity: 0; } }
+
+html { scroll-behavior: smooth; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

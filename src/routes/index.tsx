@@ -1,0 +1,147 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { Menu, X, CheckCircle2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import logoAsset from "../assets/alobaad-logo.jpg.asset.json";
+import { DestinationGrid } from "../components/DestinationGrid";
+import { HeroSection } from "../components/HeroSection";
+import { QuickActionsBar } from "../components/QuickActionsBar";
+import { FlightQuote } from "../components/FlightQuote";
+import { WhyAlAbbad } from "../components/WhyAlAbbad";
+import { HowItWorks } from "../components/HowItWorks";
+import { FinalCTA } from "../components/FinalCTA";
+import { SiteFooter } from "../components/SiteFooter";
+import { Button } from "../components/ui/button";
+
+export const Route = createFileRoute("/")({
+  ssr: false,
+  head: () => ({
+    meta: [
+      { title: "العباد للسفريات والسياحة | تأشيرات وطيران وعمرة" },
+      { name: "description", content: "خدمات التأشيرات والموافقات الأمنية وبرامج العمرة وحجز تذاكر الطيران مع العباد للسفريات والسياحة." },
+      { property: "og:title", content: "العباد للسفريات والسياحة" },
+      { property: "og:description", content: "وجهتك القادمة تبدأ بضغطة زر — تأشيرات، موافقات أمنية، عمرة وطيران." },
+      { property: "og:type", content: "website" },
+    ],
+  }),
+  component: Index,
+});
+
+const navItems = [
+  ["الرئيسية", "#home"],
+  ["الوجهات", "#destinations"],
+  ["تذاكر الطيران", "#flights"],
+  ["عن المكتب", "#about"],
+  ["تواصل معنا", "#contact"],
+];
+
+function WhatsAppIcon({ className = "size-5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true" className={className} fill="currentColor">
+      <path d="M12.04 2a9.84 9.84 0 0 0-8.5 14.8L2 22l5.34-1.5A9.98 9.98 0 1 0 12.04 2Zm0 17.98a8.1 8.1 0 0 1-4.12-1.13l-.3-.18-3.17.9.87-3.1-.2-.32a8 8 0 1 1 6.92 3.83Zm4.45-6.06c-.24-.12-1.44-.7-1.66-.79-.23-.08-.4-.12-.57.13-.16.24-.63.79-.78.95-.14.17-.28.19-.52.07-.24-.12-1.03-.38-1.95-1.2a7.3 7.3 0 0 1-1.35-1.68c-.14-.24-.01-.37.11-.49.1-.1.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.33-.76-1.82-.2-.48-.4-.41-.56-.42h-.48c-.16 0-.43.06-.65.3-.22.24-.86.84-.86 2.05s.88 2.38 1 2.54c.12.16 1.73 2.64 4.18 3.7.59.25 1.04.4 1.4.51.59.19 1.12.16 1.54.1.47-.07 1.44-.59 1.65-1.16.2-.56.2-1.04.14-1.15-.06-.1-.22-.16-.46-.28Z" />
+    </svg>
+  );
+}
+
+function BrandLogo({ dark = false }: { dark?: boolean }) {
+  return (
+    <a href="#home" className="flex items-center gap-3" aria-label="العباد للسفريات والسياحة - الرئيسية">
+      <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-[#0D2742] shadow-sm border-2 border-white/20">
+        <img src="/logo-new.png" alt="العباد" className="h-full w-full object-cover scale-110" />
+      </span>
+      <span className="hidden min-w-0 sm:block">
+        <strong className={`block text-lg font-bold leading-tight ${dark ? "text-white" : "text-foreground"}`}>العباد</strong>
+        <small className={`block text-[10px] uppercase ${dark ? "text-white/70" : "text-muted-foreground"}`}>للسفريات والسياحة</small>
+      </span>
+    </a>
+  );
+}
+
+function Header() {
+  const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <header className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${scrolled ? "bg-white/90 shadow-sm backdrop-blur-lg" : "bg-transparent pt-4"}`}>
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8 xl:px-12">
+        <BrandLogo />
+        <nav className="hidden items-center gap-8 lg:flex" aria-label="التنقل الرئيسي">
+          {navItems.map(([label, href]) => (
+            <a key={href} href={href} className="text-sm font-medium text-foreground/80 transition-colors hover:text-primary">{label}</a>
+          ))}
+        </nav>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" size="icon" className="lg:hidden text-foreground" onClick={() => setOpen(!open)} aria-label="القائمة">
+            {open ? <X className="size-6" /> : <Menu className="size-6" />}
+          </Button>
+        </div>
+      </div>
+      <AnimatePresence>
+        {open && (
+          <motion.nav initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="border-t border-border bg-white px-5 py-4 shadow-xl lg:hidden">
+            <div className="flex flex-col gap-2">
+              {navItems.map(([label, href]) => (
+                <a key={href} href={href} onClick={() => setOpen(false)} className="rounded-xl px-4 py-3 text-base font-medium text-foreground hover:bg-muted">{label}</a>
+              ))}
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </header>
+  );
+}
+
+function Index() {
+  return (
+    <main dir="rtl" className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+      <Header />
+
+      <HeroSection />
+      <QuickActionsBar />
+
+      {/* 2. DESTINATIONS SECTION */}
+      <section id="destinations" className="bg-white px-5 py-14 sm:px-8 sm:py-20 lg:px-12">
+        <div className="mx-auto max-w-7xl">
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-10 lg:mb-14"
+          >
+            <h2 className="text-2xl font-bold text-foreground sm:text-3xl lg:text-4xl">اختر وجهتك</h2>
+            <p className="mt-2 text-base text-muted-foreground sm:text-lg">ابدأ بالوجهة، ثم اختر الخدمة التي تحتاجها.</p>
+          </motion.div>
+          <DestinationGrid />
+        </div>
+      </section>
+
+      {/* 3. FLIGHTS SECTION */}
+      <FlightQuote />
+
+      {/* 4. HOW IT WORKS */}
+      <HowItWorks />
+
+      {/* 5. WHY AL-ABBAD */}
+      <WhyAlAbbad />
+
+      {/* 6. FINAL CTA */}
+      <FinalCTA />
+
+      {/* 7. FOOTER */}
+      <SiteFooter />
+
+      <Button asChild variant="primary" size="icon" className="fixed bottom-6 left-6 z-50 flex size-14 items-center justify-center rounded-full shadow-2xl transition-transform hover:scale-110 sm:bottom-8 sm:left-8" title="تواصل معنا مباشرة الآن">
+        <a href="https://wa.me/?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A7%D9%84%D8%B9%D8%A8%D8%A7%D8%AF" target="_blank" rel="noreferrer" aria-label="تواصل معنا مباشرة الآن">
+          <WhatsAppIcon className="size-6" />
+        </a>
+      </Button>
+    </main>
+  );
+}
