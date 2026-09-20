@@ -1,5 +1,11 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Send } from "lucide-react";
+import { lazy, Suspense } from "react";
+
+// Lazy-load the 3D scene so Three.js is never imported on the SSR server
+const TravelScene3D = lazy(() =>
+  import("./TravelScene3D").then((m) => ({ default: m.TravelScene3D }))
+);
 
 const WA_MSG = encodeURIComponent(
   "السلام عليكم، أرغب بالاستفسار عن خدمات العباد للسفريات والسياحة."
@@ -68,27 +74,24 @@ export function HeroSection() {
             </div>
           </motion.div>
 
-          {/* Travel image — full bleed below text */}
+          {/* 3D Scene — Mobile */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.9, delay: 0.25 }}
-            className="relative -mx-5 mt-8"
+            className="relative"
           >
-            <img
-              src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=900&auto=format&fit=crop"
-              alt="سفر مع العباد للسفريات والسياحة"
-              className="h-[210px] w-full object-cover object-center sm:h-[260px]"
-              loading="eager"
-            />
-            {/* Fade to white at bottom for seamless Quick Actions merge */}
-            <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-white to-transparent" />
+            <Suspense fallback={<div className="h-[320px] w-full sm:h-[380px]" />}>
+              <TravelScene3D className="h-[320px] w-full sm:h-[380px]" />
+            </Suspense>
+            {/* Fade to white at bottom */}
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />
           </motion.div>
         </div>
 
         {/* ── DESKTOP: editorial split ── */}
         <div className="hidden min-h-[88vh] items-center lg:flex">
-          <div className="grid w-full grid-cols-2 items-center gap-16 py-20">
+          <div className="grid w-full grid-cols-2 items-center gap-12 py-20">
             {/* Right: Text */}
             <div>
               <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-[#159DD3]/20 bg-[#EAF6FB] px-4 py-2">
@@ -121,26 +124,28 @@ export function HeroSection() {
                   تواصل عبر واتساب
                 </a>
               </div>
+
+              {/* Subtle drag hint */}
+              <p className="mt-8 flex items-center gap-2 text-xs text-muted-foreground/60">
+                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                </svg>
+                اسحب للدوران
+              </p>
             </div>
 
-            {/* Left: Travel image */}
+            {/* Left: 3D Scene */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.9, delay: 0.15, ease: "easeOut" }}
+              transition={{ duration: 1.0, delay: 0.15, ease: "easeOut" }}
               className="relative"
             >
-              {/* Decorative blob */}
-              <div className="absolute -bottom-8 -left-8 -z-10 h-72 w-72 rounded-full bg-[#159DD3]/8 blur-3xl" />
-              <div className="overflow-hidden rounded-[2.5rem] shadow-2xl shadow-[#0D2742]/10">
-                <img
-                  src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=1920&auto=format&fit=crop"
-                  alt="سفر مع العباد"
-                  className="h-[520px] w-full object-cover"
-                  loading="eager"
-                />
-                <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#0D2742]/30 to-transparent" />
-              </div>
+              {/* Glow blob */}
+              <div className="absolute inset-0 -z-10 rounded-full bg-[#159DD3]/6 blur-3xl scale-75" />
+              <Suspense fallback={<div className="h-[560px] w-full" />}>
+                <TravelScene3D className="h-[560px] w-full" />
+              </Suspense>
             </motion.div>
           </div>
         </div>

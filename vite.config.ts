@@ -12,4 +12,13 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    resolve: {
+      dedupe: ["react", "react-dom", "three"],
+    },
+    optimizeDeps: {
+      include: ["three", "@react-three/fiber", "@react-three/drei"],
+      exclude: [],
+    },
+  },
 });

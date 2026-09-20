@@ -43,16 +43,14 @@ function WhatsAppIcon({ className = "size-5" }: { className?: string }) {
   );
 }
 
-function BrandLogo({ dark = false }: { dark?: boolean }) {
+function BrandLogo() {
   return (
-    <a href="#home" className="flex items-center gap-3" aria-label="العباد للسفريات والسياحة - الرئيسية">
-      <span className="grid size-12 shrink-0 place-items-center overflow-hidden rounded-full bg-[#0D2742] shadow-sm border-2 border-white/20">
-        <img src="/logo-new.png" alt="العباد" className="h-full w-full object-cover scale-110" />
-      </span>
-      <span className="hidden min-w-0 sm:block">
-        <strong className={`block text-lg font-bold leading-tight ${dark ? "text-white" : "text-foreground"}`}>العباد</strong>
-        <small className={`block text-[10px] uppercase ${dark ? "text-white/70" : "text-muted-foreground"}`}>للسفريات والسياحة</small>
-      </span>
+    <a href="#home" className="flex items-center h-full z-50 transition-transform duration-300 hover:scale-105" aria-label="العباد للسفريات والسياحة - الرئيسية">
+      <img 
+        src="/logo-high-res.png" 
+        alt="العباد للسفريات والسياحة" 
+        className="h-14 sm:h-16 lg:h-20 w-auto object-contain drop-shadow-md py-1"
+      />
     </a>
   );
 }
@@ -69,7 +67,7 @@ function Header() {
 
   return (
     <header className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${scrolled ? "bg-white/90 shadow-sm backdrop-blur-lg" : "bg-transparent pt-4"}`}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8 xl:px-12">
+      <div className="mx-auto flex h-20 lg:h-24 max-w-7xl items-center justify-between px-5 sm:px-8 xl:px-12">
         <BrandLogo />
         <nav className="hidden items-center gap-8 lg:flex" aria-label="التنقل الرئيسي">
           {navItems.map(([label, href]) => (

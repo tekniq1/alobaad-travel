@@ -1,11 +1,14 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, X, MapPin } from "lucide-react";
+import { ArrowLeft, X, ShieldCheck, Plane, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { destinations, Destination } from "../data/destinations";
+import { destinations, Destination, Service, Airport } from "../data/destinations";
 
 export function DestinationGrid() {
   const [selected, setSelected] = useState<Destination | null>(null);
+  const [step, setStep] = useState<"services" | "airports" | "security">("services");
+  const [activeService, setActiveService] = useState<Service | null>(null);
+  const [whatsappMsg, setWhatsappMsg] = useState<string>("");
 
   // Prevent scroll when modal is open
   useEffect(() => {
@@ -20,6 +23,8 @@ export function DestinationGrid() {
   const openDestination = (destination: Destination) => {
     if (navigator.vibrate) navigator.vibrate(16);
     setSelected(destination);
+    setStep("services");
+    setActiveService(null);
   };
 
   useEffect(() => {
@@ -36,21 +41,55 @@ export function DestinationGrid() {
 
   const closeDestination = () => {
     setSelected(null);
+    setTimeout(() => {
+      setStep("services");
+      setActiveService(null);
+      setWhatsappMsg("");
+    }, 300);
+  };
+
+  const handleServiceClick = (service: Service) => {
+    if (navigator.vibrate) navigator.vibrate(10);
+    
+    if (service.airports && service.airports.length > 0) {
+      setActiveService(service);
+      setStep("airports");
+    } else if (service.requiresPassport) {
+      setWhatsappMsg(service.whatsappMessage);
+      setStep("security");
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(service.whatsappMessage)}`, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const handleAirportClick = (airport: Airport, service: Service) => {
+    if (navigator.vibrate) navigator.vibrate(10);
+    if (service.requiresPassport) {
+      setWhatsappMsg(airport.whatsappMessage);
+      setStep("security");
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(airport.whatsappMessage)}`, "_blank", "noopener,noreferrer");
+    }
+  };
+
+  const proceedToWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
+    closeDestination();
   };
 
   return (
     <>
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-12 lg:grid-rows-[260px_260px_auto] lg:gap-6">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-12 lg:grid-rows-[260px_260px_auto_260px_260px] lg:gap-6">
         {destinations.map((destination, index) => {
           let layoutClass = "";
           let headingClass = "text-2xl";
-          if (destination.id === "oman") {
+          if (destination.id === "oman" || destination.id === "india") {
             layoutClass = "col-span-2 lg:col-span-7 lg:row-span-2 min-h-[380px] lg:min-h-0";
             headingClass = "text-3xl lg:text-5xl";
-          } else if (destination.id === "egypt") {
+          } else if (destination.id === "egypt" || destination.id === "socotra") {
             layoutClass = "col-span-1 lg:col-span-5 lg:row-span-1 min-h-[200px] lg:min-h-0";
             headingClass = "text-2xl lg:text-3xl";
-          } else if (destination.id === "ksa") {
+          } else if (destination.id === "ksa" || destination.id === "malaysia") {
             layoutClass = "col-span-1 lg:col-span-5 lg:row-span-1 min-h-[200px] lg:min-h-0";
             headingClass = "text-2xl lg:text-3xl";
           } else if (destination.id === "tourism") {
@@ -151,31 +190,121 @@ export function DestinationGrid() {
               </div>
 
               {/* Right Side (Desktop) / Bottom (Mobile) */}
-              <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-10 sm:py-10">
-                <h4 className="text-xl font-bold text-foreground">اختر الخدمة التي تحتاجها</h4>
-                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                  سيتم تحويلك مباشرة لمحادثة واتساب مخصصة للاستفسار عن هذه الخدمة.
-                </p>
-                
-                <div className="mt-8 grid gap-3">
-                  {selected.services.map((item) => (
-                    <button
-                      key={item.title}
-                      onClick={() => {
-                        if (navigator.vibrate) navigator.vibrate(10);
-                        window.open(`https://wa.me/?text=${encodeURIComponent(item.whatsappMessage)}`, "_blank", "noopener,noreferrer");
-                      }}
-                      className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
+              <div className="flex-1 overflow-y-auto px-5 py-6 sm:px-10 sm:py-10 relative min-h-[400px]">
+                <AnimatePresence mode="wait">
+                  {step === "services" && (
+                    <motion.div
+                      key="services"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3 }}
                     >
-                      <span className="font-semibold text-foreground group-hover:text-primary">
-                        {item.title}
-                      </span>
-                      <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
-                        <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
+                      <h4 className="text-xl font-bold text-foreground">اختر الخدمة التي تحتاجها</h4>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        اختر الخدمة المناسبة لك لمتابعة الإجراءات بسلاسة.
+                      </p>
+                      
+                      <div className="mt-8 grid gap-3">
+                        {selected.services.map((item) => (
+                          <button
+                            key={item.title}
+                            onClick={() => handleServiceClick(item)}
+                            className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
+                          >
+                            <span className="font-semibold text-foreground group-hover:text-primary">
+                              {item.title}
+                            </span>
+                            <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
+                              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
+                            </div>
+                          </button>
+                        ))}
                       </div>
-                    </button>
-                  ))}
-                </div>
+                    </motion.div>
+                  )}
+
+                  {step === "airports" && activeService && (
+                    <motion.div
+                      key="airports"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <button 
+                        onClick={() => setStep("services")}
+                        className="mb-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        <ArrowLeft className="size-4 rotate-180" />
+                        رجوع للخدمات
+                      </button>
+                      
+                      <h4 className="text-xl font-bold text-foreground flex items-center gap-2">
+                        <Plane className="size-6 text-primary" />
+                        تحديد المطار
+                      </h4>
+                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                        الرجاء تحديد المطار المطلوب للحصول على أدق التفاصيل لرحلتك.
+                      </p>
+                      
+                      <div className="mt-8 grid gap-3">
+                        {activeService.airports?.map((airport) => (
+                          <button
+                            key={airport.name}
+                            onClick={() => handleAirportClick(airport, activeService)}
+                            className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
+                          >
+                            <span className="font-semibold text-foreground group-hover:text-primary">
+                              {airport.name}
+                            </span>
+                            <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
+                              <CheckCircle2 className="size-4 transition-transform group-hover:scale-110" />
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {step === "security" && (
+                    <motion.div
+                      key="security"
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col items-center text-center pt-4 sm:pt-8"
+                    >
+                      <div className="relative mb-6 flex size-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
+                        <div className="absolute inset-0 animate-ping rounded-full bg-emerald-100 opacity-50"></div>
+                        <ShieldCheck className="relative z-10 size-10" />
+                      </div>
+                      
+                      <h4 className="text-2xl font-bold text-foreground">
+                        مساحة آمنة ومشفّرة
+                      </h4>
+                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base max-w-sm mx-auto">
+                        حفاظاً على سرية بياناتك الشخصية، <strong>نرجو منك تجهيز صورة واضحة لجواز السفر</strong> وإرسالها مباشرة داخل محادثة الواتساب المشفّرة التي ستفتح الآن، لضمان أعلى درجات الأمان وحماية خصوصيتك.
+                      </p>
+                      
+                      <Button 
+                        size="lg" 
+                        onClick={proceedToWhatsApp}
+                        className="mt-8 w-full sm:w-auto h-12 px-8 text-base shadow-lg shadow-primary/20 bg-emerald-600 hover:bg-emerald-700 text-white"
+                      >
+                        حسناً، انتقل للواتساب
+                      </Button>
+                      
+                      <button 
+                        onClick={() => setStep(activeService?.airports ? "airports" : "services")}
+                        className="mt-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        تراجع
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </motion.div>
           </motion.div>
