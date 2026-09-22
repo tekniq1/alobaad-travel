@@ -1,17 +1,19 @@
 import { useRef, useEffect } from "react";
 import { Plane } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const actions = [
-  { id: "ksa",      label: "السعودية",       flagImg: "/flag-ksa.jpg", isDestination: true  },
-  { id: "egypt",    label: "مصر",            flagImg: "/flag-egypt.jpg", isDestination: true  },
-  { id: "oman",     label: "عمان",           flagImg: "/flag-oman.jpg", isDestination: true  },
-  { id: "india",    label: "الهند",          flagImg: "/flag-india.jpg", isDestination: true  },
-  { id: "socotra",  label: "سقطرى",          flagImg: "/flag-yemen.jpg", isDestination: true  },
-  { id: "malaysia", label: "ماليزيا",        flagImg: "/flag-malaysia.jpg", isDestination: true  },
-  { id: "flights",  label: "تذاكر طيران",    isDestination: false },
+  { id: "ksa",      key: "destinations.ksa.name",       flagImg: "/flag-ksa.jpg", isDestination: true  },
+  { id: "egypt",    key: "destinations.egypt.name",     flagImg: "/flag-egypt.jpg", isDestination: true  },
+  { id: "oman",     key: "destinations.oman.name",      flagImg: "/flag-oman.jpg", isDestination: true  },
+  { id: "india",    key: "destinations.india.name",     flagImg: "/flag-india.jpg", isDestination: true  },
+  { id: "socotra",  key: "destinations.socotra.name",   flagImg: "/flag-yemen.jpg", isDestination: true  },
+  { id: "malaysia", key: "destinations.malaysia.name",  flagImg: "/flag-malaysia.jpg", isDestination: true  },
+  { id: "flights",  key: "nav.flights",                 isDestination: false },
 ];
 
 export function QuickActionsBar() {
+  const { t } = useTranslation();
   const scrollRef  = useRef<HTMLDivElement>(null);
   const rafRef     = useRef<number>();
   const pausedRef  = useRef(false);
@@ -118,7 +120,7 @@ export function QuickActionsBar() {
           onTouchEnd={scheduleResume}
           onMouseEnter={pause}
           onMouseLeave={scheduleResume}
-          aria-label="???? ???? ???????"
+          aria-label="Quick Actions"
           className="flex overflow-x-auto py-4 px-2 hide-scrollbar scroll-smooth-disabled"
           style={{ scrollBehavior: 'auto' }}
         >
@@ -126,7 +128,7 @@ export function QuickActionsBar() {
             <button
               key={action.id}
               onClick={() => trigger(action)}
-              aria-label={action.label}
+              aria-label={t(action.key)}
               className="mx-2 flex min-w-[135px] shrink-0 items-center justify-center gap-3 rounded-2xl border border-[#0D2742]/10 bg-white px-5 py-3.5 shadow-[0_4px_16px_rgba(13,39,66,0.05)] transition-transform active:scale-95"
             >
               <span className={`flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden ${
@@ -135,15 +137,13 @@ export function QuickActionsBar() {
                   : "bg-[#159DD3] text-white"
               }`}>
                 {action.flagImg ? (
-                  <img src={action.flagImg} alt={action.label} className="w-full h-full object-cover" />
-                ) : action.flagEmoji ? (
-                  <span className="text-xl leading-none">{action.flagEmoji}</span>
+                  <img src={action.flagImg} alt={t(action.key)} className="w-full h-full object-cover" />
                 ) : (
                   <Plane className="size-4" />
                 )}
               </span>
               <span className="whitespace-nowrap text-sm font-bold text-[#0D2742]">
-                {action.label}
+                {t(action.key)}
               </span>
             </button>
           ))}
@@ -166,14 +166,12 @@ export function QuickActionsBar() {
                     : "bg-[#159DD3] text-white group-hover:bg-[#0D2742]"
                 }`}>
                   {action.flagImg ? (
-                    <img src={action.flagImg} alt={action.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
-                  ) : action.flagEmoji ? (
-                    <span className="text-2xl leading-none transition-transform group-hover:scale-110">{action.flagEmoji}</span>
+                    <img src={action.flagImg} alt={t(action.key)} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
                   ) : (
                     <Plane className="size-5 transition-transform group-hover:scale-110" />
                   )}
                 </span>
-                <span className="font-bold text-[#0D2742]">{action.label}</span>
+                <span className="font-bold text-[#0D2742]">{t(action.key)}</span>
               </button>
             ))}
           </div>

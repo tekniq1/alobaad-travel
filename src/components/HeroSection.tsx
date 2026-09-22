@@ -1,14 +1,11 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Send } from "lucide-react";
 import { lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 
 // Lazy-load the 3D scene so Three.js is never imported on the SSR server
 const TravelScene3D = lazy(() =>
   import("./TravelScene3D").then((m) => ({ default: m.TravelScene3D }))
-);
-
-const WA_MSG = encodeURIComponent(
-  "السلام عليكم، أرغب بالاستفسار عن خدمات العباد للسفريات والسياحة."
 );
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -20,6 +17,14 @@ function WhatsAppIcon({ className }: { className?: string }) {
 }
 
 export function HeroSection() {
+  const { t, i18n } = useTranslation();
+  const WA_MSG = encodeURIComponent(t("hero.wa_msg"));
+  
+  // Conditionally flip arrow icon based on direction
+  const isRtl = i18n.dir() === "rtl";
+  const ArrowIcon = ArrowLeft; // We keep ArrowLeft, but it can be flipped with CSS or conditional rendering if needed. Let's use Tailwind's `rtl:rotate-180` or similar for RTL support, but ArrowLeft inherently points left. For Arabic (RTL), pointing left means "forward". For English (LTR), we need it to point right to mean "forward".
+  // Actually, ArrowLeft pointing left is "backward" in LTR. We should use `ArrowLeft` and rotate it for LTR, or just use `ArrowLeft` for RTL and `ArrowRight` for LTR. Let's rely on standard rotation: `rotate-180` in LTR.
+
   return (
     <section id="home" className="relative overflow-hidden bg-gradient-to-b from-[#EAF6FB] via-white to-white">
       {/* Decorative background blobs */}
@@ -41,17 +46,17 @@ export function HeroSection() {
             {/* Eyebrow */}
             <div className="mb-5 inline-flex items-center gap-2">
               <Send className="size-4 -rotate-12 text-primary" aria-hidden="true" />
-              <span className="text-sm font-bold text-primary">العباد للسفريات والسياحة</span>
+              <span className="text-sm font-bold text-primary">{t("hero.brand")}</span>
             </div>
 
             {/* Headline */}
             <h1 className="text-[2.4rem] font-bold leading-[1.2] tracking-tight text-[#0D2742] sm:text-5xl">
-              رحلتك تبدأ<br />من هنا
+              {t("hero.title1")}<br />{t("hero.title2")}
             </h1>
 
             {/* Description */}
             <p className="mt-4 max-w-sm text-base font-medium leading-relaxed text-muted-foreground">
-              تأشيرات، موافقات، عمرة وتذاكر سفر بخدمة سهلة ومباشرة.
+              {t("hero.subtitle")}
             </p>
 
             {/* CTAs */}
@@ -60,16 +65,16 @@ export function HeroSection() {
                 href="#destinations"
                 className="flex h-14 items-center justify-center gap-2 rounded-2xl bg-[#159DD3] text-base font-bold text-white shadow-[0_8px_24px_rgba(21,157,211,0.26)] transition-all hover:bg-[#3BAFE0] active:scale-[0.97]"
               >
-                استكشف الوجهات <ArrowLeft className="size-5" />
+                {t("hero.explore")} <ArrowIcon className={`size-5 ${isRtl ? '' : 'rotate-180'}`} />
               </a>
               <a
-                href={`https://wa.me/?text=${WA_MSG}`}
+                href={`https://wa.me/967738883371?text=${WA_MSG}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-14 items-center justify-center gap-2 rounded-2xl border-2 border-[#0D2742]/10 bg-white text-base font-bold text-[#0D2742] transition-all hover:border-[#0D2742]/20 hover:bg-[#F7FAFC] active:scale-[0.97]"
               >
                 <WhatsAppIcon className="size-5 text-primary" />
-                تواصل عبر واتساب
+                {t("hero.whatsapp")}
               </a>
             </div>
           </motion.div>
@@ -84,7 +89,7 @@ export function HeroSection() {
             <div className="relative mx-auto max-w-md overflow-hidden rounded-[2rem] shadow-2xl shadow-[#159DD3]/20 ring-4 ring-white/60">
               <img 
                 src="/main-hero.jpg" 
-                alt="وجهات سياحية عالمية مع العباد" 
+                alt={t("hero.brand")} 
                 className="w-full h-[360px] object-cover"
               />
             </div>
@@ -98,15 +103,15 @@ export function HeroSection() {
             <div>
               <div className="mb-7 inline-flex items-center gap-2.5 rounded-full border border-[#159DD3]/20 bg-[#EAF6FB] px-4 py-2">
                 <Send className="size-4 -rotate-12 text-primary" aria-hidden="true" />
-                <span className="text-sm font-bold text-primary">العباد للسفريات والسياحة</span>
+                <span className="text-sm font-bold text-primary">{t("hero.brand")}</span>
               </div>
 
               <h1 className="text-[clamp(2.8rem,3.5vw,4.5rem)] font-bold leading-[1.18] tracking-tight text-[#0D2742]">
-                رحلتك تبدأ<br />من هنا
+                {t("hero.title1")}<br />{t("hero.title2")}
               </h1>
 
               <p className="mt-6 max-w-md text-xl font-medium leading-relaxed text-muted-foreground">
-                تأشيرات، موافقات، عمرة وتذاكر سفر بخدمة سهلة ومباشرة.
+                {t("hero.subtitle")}
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">
@@ -114,16 +119,16 @@ export function HeroSection() {
                   href="#destinations"
                   className="flex h-14 items-center gap-2.5 rounded-2xl bg-[#159DD3] px-8 text-base font-bold text-white shadow-[0_8px_24px_rgba(21,157,211,0.26)] transition-all hover:bg-[#3BAFE0] active:scale-[0.97]"
                 >
-                  استكشف الوجهات <ArrowLeft className="size-5" />
+                  {t("hero.explore")} <ArrowIcon className={`size-5 ${isRtl ? '' : 'rotate-180'}`} />
                 </a>
                 <a
-                  href={`https://wa.me/?text=${WA_MSG}`}
+                  href={`https://wa.me/967738883371?text=${WA_MSG}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-14 items-center gap-2.5 rounded-2xl border-2 border-[#0D2742]/10 bg-white/80 px-7 text-base font-bold text-[#0D2742] backdrop-blur-sm transition-all hover:bg-white active:scale-[0.97]"
                 >
                   <WhatsAppIcon className="size-5 text-primary" />
-                  تواصل عبر واتساب
+                  {t("hero.whatsapp")}
                 </a>
               </div>
             </div>
@@ -146,7 +151,7 @@ export function HeroSection() {
               >
                 <img 
                   src="/main-hero.jpg" 
-                  alt="السفر حول العالم مع العباد" 
+                  alt={t("hero.brand")} 
                   className="w-full h-[520px] object-cover transition-transform duration-700 hover:scale-105"
                 />
               </motion.div>

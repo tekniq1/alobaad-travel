@@ -1,0 +1,186 @@
+{
+  "meta": {
+    "rootTitle": "Al-Abbad Travel & Tourism",
+    "rootDesc": "Travel, Visa, Flight, and Umrah services.",
+    "indexTitle": "Al-Abbad Travel & Tourism | Visas, Flights & Umrah",
+    "indexDesc": "Visa services, security approvals, Umrah programs, and flight ticket bookings with Al-Abbad Travel & Tourism.",
+    "indexOgDesc": "Your next destination starts with a click — Visas, security approvals, Umrah, and flights."
+  },
+  "nav": {
+    "home": "Home",
+    "destinations": "Destinations",
+    "flights": "Flights",
+    "about": "About Us",
+    "contact": "Contact Us",
+    "mainNav": "Main Navigation",
+    "menu": "Menu"
+  },
+  "errors": {
+    "404": "404",
+    "pageNotFound": "Page not found",
+    "pageNotFoundDesc": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Go home",
+    "pageDidntLoad": "This page didn't load",
+    "somethingWentWrong": "Something went wrong on our end. You can try refreshing or head back home.",
+    "tryAgain": "Try again"
+  },
+  "index": {
+    "chooseDestination": "Choose Your Destination",
+    "chooseDestinationDesc": "Start with the destination, then choose the service you need.",
+    "whatsappDirect": "Contact us directly now"
+  },
+  "hero": {
+    "brand": "Al-Abbad Travel & Tourism",
+    "title1": "Your Journey Starts",
+    "title2": "Right Here",
+    "subtitle": "Visas, approvals, Umrah, and flights with an easy and direct service.",
+    "explore": "Explore Destinations",
+    "whatsapp": "Contact via WhatsApp",
+    "wa_msg": "Hello, I would like to inquire about Al-Abbad Travel and Tourism services."
+  },
+  "dest": {
+    "explore_services": "Explore Services",
+    "choose_service": "Choose the service you need",
+    "choose_service_desc": "Select the appropriate service to proceed smoothly.",
+    "back_to_services": "Back to services",
+    "select_airport": "Select Airport",
+    "select_airport_desc": "Please select the required airport for accurate details.",
+    "secure_space": "Secure & Encrypted Space",
+    "secure_space_desc": "To protect your privacy, <strong>please prepare a clear photo of your passport</strong> and send it directly in the encrypted WhatsApp chat that will open now.",
+    "go_to_whatsapp": "Proceed to WhatsApp",
+    "cancel": "Cancel",
+    "services_of": "Services for",
+    "flag_of": "Flag of"
+  },
+  "flight": {
+    "title": "Find Your Perfect Flight",
+    "subtitle": "Send your trip details and we will contact you with available options.",
+    "book_confidence": "Book with Confidence",
+    "best_prices": "Best available ticket prices",
+    "support": "Continuous support before and during the trip",
+    "flexible": "Flexible changes and cancellations",
+    "round_trip": "Round Trip",
+    "one_way": "One Way",
+    "from": "From",
+    "from_placeholder": "Departure City",
+    "to": "To",
+    "to_placeholder": "Destination City",
+    "depart_date": "Departure Date",
+    "return_date": "Return Date",
+    "passengers": "Passengers",
+    "your_trip": "Your Trip",
+    "passengers_count": "Passengers",
+    "passenger": "Passenger",
+    "submit": "Send Request via WhatsApp",
+    "wa_msg_1": "Hello,\nI would like to inquire about a flight ticket from Al-Abbad Travel.\n\nFrom: ",
+    "wa_msg_2": "\nTo: ",
+    "wa_msg_3": "\nTrip Type: ",
+    "wa_msg_4": "\nDeparture Date: ",
+    "wa_msg_5": "\nReturn Date: ",
+    "wa_msg_6": "\nNumber of Passengers: ",
+    "wa_unspecified": "Not specified"
+  },
+  "destinations": {
+    "oman": {
+      "name": "Oman",
+      "desc": "Visas, Approvals, Flights"
+    },
+    "ksa": {
+      "name": "Saudi Arabia",
+      "desc": "Umrah, Flights"
+    },
+    "egypt": {
+      "name": "Egypt",
+      "desc": "Approvals, Flights"
+    },
+    "india": {
+      "name": "India",
+      "desc": "Medical & Tourist Visas, Flights"
+    },
+    "malaysia": {
+      "name": "Malaysia",
+      "desc": "Tour Packages, Flights"
+    },
+    "socotra": {
+      "name": "Socotra",
+      "desc": "Tours, Flights"
+    },
+    "tourism": {
+      "name": "Global Tour Packages",
+      "desc": "Comprehensive tour programs for families and individuals"
+    },
+    "services": {
+      "oman_visa": "Oman Visa",
+      "oman_transit": "Transit Visa",
+      "oman_approval": "Security Approval",
+      "oman_flight": "Flight Tickets",
+      "ksa_umrah": "Umrah Program",
+      "ksa_flight": "Flight Tickets",
+      "egypt_approval": "Security Approval",
+      "egypt_flight": "Flight Tickets",
+      "india_medical": "Medical Visa",
+      "india_tourist": "Tourist Visa",
+      "india_flight": "Flight Tickets",
+      "malaysia_pkg": "Tour Packages",
+      "malaysia_flight": "Flight Tickets",
+      "socotra_tour": "Tours",
+      "socotra_flight": "Flight Tickets",
+      "global_pkg": "Tour Packages",
+      "custom_pkg": "Custom Programs"
+    },
+    "airports": {
+      "sanaa": "Sanaa Airport",
+      "aden": "Aden Airport",
+      "seiyun": "Seiyun Airport",
+      "riyadh": "Riyadh",
+      "jeddah": "Jeddah",
+      "dammam": "Dammam"
+    }
+  },
+  "how": {
+    "title": "Your Journey in 3 Steps",
+    "subtitle": "Choose your service, send your request, and we will follow up.",
+    "step1": "01",
+    "step1_title": "Select Destination & Service",
+    "step1_desc": "Choose the country and the service you need.",
+    "step2": "02",
+    "step2_title": "Send Your Request",
+    "step2_desc": "Your request is prepared and sent directly via WhatsApp.",
+    "step3": "03",
+    "step3_title": "We Follow Up",
+    "step3_desc": "The Al-Abbad team will contact you to complete the details.",
+    "now": "Your journey begins now"
+  },
+  "why": {
+    "tag": "Why Us?",
+    "title": "Why Al-Abbad?",
+    "subtitle": "Clear travel services, direct follow-up, and an easier experience from the very first step.",
+    "reason1_title": "Fast Response",
+    "reason1_desc": "Direct and fast communication with our team.",
+    "reason2_title": "Direct Follow-up",
+    "reason2_desc": "We help you know the steps and track your request easily.",
+    "reason3_title": "Multiple Services",
+    "reason3_desc": "Visas, approvals, Umrah, and flights all in one place.",
+    "license": "Official License No. (12345)"
+  },
+  "cta": {
+    "title": "Your Journey Starts with a Step",
+    "desc": "Choose your destination, and let the Al-Abbad team handle the rest.",
+    "whatsapp": "Contact via WhatsApp",
+    "explore": "Explore Destinations"
+  },
+  "footer": {
+    "tagline": "Visas, approvals, flight tickets, Umrah and tourism programs.",
+    "contact_us": "Contact us via WhatsApp",
+    "quick_links": "Quick Links",
+    "services": "Our Services",
+    "contact_info": "Contact Info",
+    "address": "Ibb, Yemen | Muscat, Oman",
+    "hours": "Open 24/7",
+    "copyright": "Al-Abbad Travel & Tourism. All rights reserved.",
+    "svc1": "Tourist Visas",
+    "svc2": "Security Approvals & Transit",
+    "svc3": "Flight Tickets",
+    "svc4": "Umrah Programs"
+  }
+}

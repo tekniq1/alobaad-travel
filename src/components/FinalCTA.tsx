@@ -1,6 +1,7 @@
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
 import { Send } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // WhatsApp SVG icon
 function WhatsAppIcon({ className = "size-5" }: { className?: string }) {
@@ -11,19 +12,18 @@ function WhatsAppIcon({ className = "size-5" }: { className?: string }) {
   );
 }
 
-const WA_MESSAGE = encodeURIComponent(
-  "السلام عليكم، أرغب بالاستفسار عن خدمات العباد للسفريات والسياحة."
-);
-
 export function FinalCTA() {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, amount: 0.25 });
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir() === "rtl";
+  const WA_MESSAGE = encodeURIComponent(t("hero.wa_msg"));
 
   return (
     <section className="bg-[#F4F8FA] px-4 py-10 sm:px-8 sm:py-16 lg:px-12">
       <div ref={ref} className="mx-auto max-w-6xl">
 
-        {/* ── MOBILE / TABLET: stacked cinematic card ── */}
+        {/* 📱 MOBILE / TABLET: stacked cinematic card 📱 */}
         <div className="lg:hidden">
           <motion.div
             initial={{ opacity: 0, y: 32 }}
@@ -36,14 +36,14 @@ export function FinalCTA() {
             <div className="relative h-[260px] sm:h-[320px]">
               <img
                 src="/cta-airplane.jpg"
-                alt="سفر"
+                alt="Airplane"
                 className="h-full w-full object-cover"
                 loading="lazy"
               />
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0D2742]/30 to-[#0D2742]" />
               {/* Subtle paper-plane in corner */}
-              <div className="absolute left-5 top-5 flex size-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm">
+              <div className={`absolute ${isRtl ? 'left-5' : 'right-5'} top-5 flex size-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm`}>
                 <Send className="size-5 -rotate-12" />
               </div>
             </div>
@@ -57,7 +57,7 @@ export function FinalCTA() {
                 transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="text-3xl font-bold text-white"
               >
-                رحلتك تبدأ بخطوة
+                {t("cta.title")}
               </motion.h2>
               <motion.p
                 initial={{ opacity: 0, y: 12 }}
@@ -66,7 +66,7 @@ export function FinalCTA() {
                 transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="mt-3 text-base font-medium leading-relaxed text-white/70"
               >
-                اختر وجهتك، ودع فريق العباد يساعدك في بقية التفاصيل.
+                {t("cta.desc")}
               </motion.p>
 
               <motion.div
@@ -77,26 +77,26 @@ export function FinalCTA() {
                 className="mt-8 flex flex-col gap-3"
               >
                 <a
-                  href={`https://wa.me/?text=${WA_MESSAGE}`}
+                  href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-[0_8px_20px_var(--shadow-primary)] transition-all hover:-translate-y-0.5 hover:bg-primary-bright active:scale-[0.98]"
                 >
                   <WhatsAppIcon className="size-5" />
-                  تواصل عبر واتساب
+                  {t("cta.whatsapp")}
                 </a>
                 <a
                   href="#destinations"
                   className="flex h-12 w-full items-center justify-center rounded-xl border border-white/20 text-sm font-bold text-white/80 transition-all hover:bg-white/10 hover:text-white"
                 >
-                  استكشف الوجهات
+                  {t("cta.explore")}
                 </a>
               </motion.div>
             </div>
           </motion.div>
         </div>
 
-        {/* ── DESKTOP: split cinematic layout ── */}
+        {/* 💻 DESKTOP: split cinematic layout 💻 */}
         <motion.div
           initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -108,11 +108,11 @@ export function FinalCTA() {
           <div className="relative">
             <img
               src="/cta-airplane.jpg"
-              alt="سفر"
+              alt="Airplane"
               className="h-full w-full object-cover"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-gradient-to-l from-[#0D2742]/80 via-[#0D2742]/20 to-transparent" />
+            <div className={`absolute inset-0 bg-gradient-to-${isRtl ? 'l' : 'r'} from-[#0D2742]/80 via-[#0D2742]/20 to-transparent`} />
           </div>
 
           {/* Content side */}
@@ -122,28 +122,27 @@ export function FinalCTA() {
               <Send className="size-6 -rotate-12" />
             </div>
 
-            <h2 className="text-4xl font-bold leading-tight text-white xl:text-5xl">
-              رحلتك تبدأ<br />بخطوة
+            <h2 className="text-4xl font-bold leading-tight text-white xl:text-5xl" dangerouslySetInnerHTML={{ __html: t("cta.title").replace(' ', '<br />') }}>
             </h2>
             <p className="mt-5 max-w-xs text-lg font-medium leading-relaxed text-white/70">
-              اختر وجهتك، ودع فريق العباد يساعدك في بقية التفاصيل.
+              {t("cta.desc")}
             </p>
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <a
-                href={`https://wa.me/?text=${WA_MESSAGE}`}
+                href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-14 items-center justify-center gap-3 rounded-xl bg-primary px-8 text-base font-bold text-primary-foreground shadow-[0_8px_20px_var(--shadow-primary)] transition-all hover:-translate-y-0.5 hover:bg-primary-bright active:scale-[0.98]"
               >
                 <WhatsAppIcon className="size-5" />
-                تواصل عبر واتساب
+                {t("cta.whatsapp")}
               </a>
               <a
                 href="#destinations"
                 className="flex h-14 items-center justify-center rounded-xl border border-white/20 px-8 text-sm font-bold text-white/80 transition-all hover:bg-white/10 hover:text-white"
               >
-                استكشف الوجهات
+                {t("cta.explore")}
               </a>
             </div>
           </div>

@@ -1,14 +1,18 @@
 import { AnimatePresence, motion } from "motion/react";
 import { ArrowLeft, X, ShieldCheck, Plane, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { destinations, Destination, Service, Airport } from "../data/destinations";
 
 export function DestinationGrid() {
+  const { t, i18n } = useTranslation();
   const [selected, setSelected] = useState<Destination | null>(null);
   const [step, setStep] = useState<"services" | "airports" | "security">("services");
   const [activeService, setActiveService] = useState<Service | null>(null);
   const [whatsappMsg, setWhatsappMsg] = useState<string>("");
+
+  const isRtl = i18n.dir() === "rtl";
 
   // Prevent scroll when modal is open
   useEffect(() => {
@@ -58,7 +62,7 @@ export function DestinationGrid() {
       setWhatsappMsg(service.whatsappMessage);
       setStep("security");
     } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(service.whatsappMessage)}`, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/967738883371?text=${encodeURIComponent(service.whatsappMessage)}`, "_blank", "noopener,noreferrer");
     }
   };
 
@@ -68,12 +72,12 @@ export function DestinationGrid() {
       setWhatsappMsg(airport.whatsappMessage);
       setStep("security");
     } else {
-      window.open(`https://wa.me/?text=${encodeURIComponent(airport.whatsappMessage)}`, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/967738883371?text=${encodeURIComponent(airport.whatsappMessage)}`, "_blank", "noopener,noreferrer");
     }
   };
 
   const proceedToWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/967738883371?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
     closeDestination();
   };
 
@@ -120,8 +124,8 @@ export function DestinationGrid() {
               
               {/* Country Flag Badge */}
               {destination.flagImg && (
-                <div className="absolute top-4 right-4 z-10 size-10 rounded-full border-2 border-white/20 overflow-hidden shadow-lg">
-                  <img src={destination.flagImg} alt={`علم ${destination.name}`} className="w-full h-full object-cover" />
+                <div className={`absolute top-4 ${isRtl ? 'right-4' : 'left-4'} z-10 size-10 rounded-full border-2 border-white/20 overflow-hidden shadow-lg`}>
+                  <img src={destination.flagImg} alt={`${t("dest.flag_of")} ${destination.name}`} className="w-full h-full object-cover" />
                 </div>
               )}
               
@@ -129,17 +133,17 @@ export function DestinationGrid() {
               <div className="absolute left-4 right-4 bottom-4 top-4 border border-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none hidden lg:block" />
 
               <div className="relative z-10 flex flex-col p-5 sm:p-6 lg:p-10 text-white transition-transform duration-500 group-hover:-translate-y-1">
-                <h3 className={`font-bold tracking-wide ${headingClass}`}>{destination.name}</h3>
+                <h3 className={`font-bold tracking-wide ${headingClass}`}>{t(`destinations.${destination.id}.name`)}</h3>
                 <p className="mt-2 text-sm font-medium text-white/80 lg:text-lg">
-                  {destination.description}
+                  {t(`destinations.${destination.id}.desc`)}
                 </p>
                 
                 <div className="mt-5 flex items-center gap-3 overflow-hidden">
                   <span className="flex size-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-md transition-all group-hover:bg-primary">
-                    <ArrowLeft className="size-5 transition-transform duration-300 group-hover:-translate-x-1" />
+                    <ArrowLeft className={`size-5 transition-transform duration-300 ${isRtl ? 'group-hover:-translate-x-1' : 'rotate-180 group-hover:translate-x-1'}`} />
                   </span>
-                  <span className="text-sm font-semibold opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1 lg:text-base">
-                    استكشف الخدمات
+                  <span className={`text-sm font-semibold opacity-0 transition-all duration-300 group-hover:opacity-100 ${isRtl ? 'group-hover:translate-x-1' : 'group-hover:-translate-x-1'} lg:text-base`}>
+                    {t("dest.explore_services")}
                   </span>
                 </div>
               </div>
@@ -161,7 +165,7 @@ export function DestinationGrid() {
             <motion.div
               role="dialog"
               aria-modal="true"
-              aria-label={`خدمات ${selected.name}`}
+              aria-label={`${t("dest.services_of")} ${t(`destinations.${selected.id}.name`)}`}
               initial={{ y: "100%", opacity: 0.5 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
@@ -170,18 +174,18 @@ export function DestinationGrid() {
             >
               {/* Left Side (Desktop) / Top (Mobile) */}
               <div className="relative h-44 shrink-0 md:h-auto md:w-[45%] lg:w-[40%]">
-                <img src={selected.image} alt={selected.name} className="h-full w-full object-cover" />
+                <img src={selected.image} alt={t(`destinations.${selected.id}.name`)} className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A1B2E]/90 via-[#0A1B2E]/30 to-transparent" />
                 
                 {/* Flag Badge inside Modal */}
                 {selected.flagImg && (
-                  <div className="absolute top-5 right-5 z-20 size-12 rounded-full border-2 border-white/20 overflow-hidden shadow-xl">
-                    <img src={selected.flagImg} alt={`علم ${selected.name}`} className="w-full h-full object-cover" />
+                  <div className={`absolute top-5 ${isRtl ? 'right-5' : 'left-5'} z-20 size-12 rounded-full border-2 border-white/20 overflow-hidden shadow-xl`}>
+                    <img src={selected.flagImg} alt={`${t("dest.flag_of")} ${t(`destinations.${selected.id}.name`)}`} className="w-full h-full object-cover" />
                   </div>
                 )}
                 
                 {/* Decorative passport stamp overlay */}
-                <div className="absolute top-10 right-10 rotate-12 opacity-10 pointer-events-none mix-blend-overlay">
+                <div className={`absolute top-10 ${isRtl ? 'left-10 rotate-12' : 'right-10 -rotate-12'} opacity-10 pointer-events-none mix-blend-overlay`}>
                   <svg width="120" height="120" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="45" stroke="white" strokeWidth="2" strokeDasharray="4 4"/>
                     <circle cx="50" cy="50" r="35" stroke="white" strokeWidth="1"/>
@@ -192,14 +196,14 @@ export function DestinationGrid() {
                 <Button 
                   variant="glass" 
                   size="icon" 
-                  className="absolute left-4 top-4 z-10 size-9 rounded-full bg-black/20 text-white backdrop-blur-md hover:bg-black/40" 
+                  className={`absolute ${isRtl ? 'left-4' : 'right-4'} top-4 z-10 size-9 rounded-full bg-black/20 text-white backdrop-blur-md hover:bg-black/40`} 
                   onClick={closeDestination}
                 >
                   <X className="size-4" />
                 </Button>
                 
-                <div className="absolute bottom-5 right-5 sm:bottom-8 sm:right-8">
-                  <h3 className="text-3xl font-bold text-white sm:text-4xl">{selected.name}</h3>
+                <div className={`absolute bottom-5 ${isRtl ? 'right-5' : 'left-5'} sm:bottom-8 ${isRtl ? 'sm:right-8' : 'sm:left-8'}`}>
+                  <h3 className="text-3xl font-bold text-white sm:text-4xl">{t(`destinations.${selected.id}.name`)}</h3>
                 </div>
               </div>
 
@@ -209,14 +213,14 @@ export function DestinationGrid() {
                   {step === "services" && (
                     <motion.div
                       key="services"
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
+                      exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <h4 className="text-xl font-bold text-foreground">اختر الخدمة التي تحتاجها</h4>
+                      <h4 className="text-xl font-bold text-foreground">{t("dest.choose_service")}</h4>
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        اختر الخدمة المناسبة لك لمتابعة الإجراءات بسلاسة.
+                        {t("dest.choose_service_desc")}
                       </p>
                       
                       <div className="mt-8 grid gap-3">
@@ -230,7 +234,7 @@ export function DestinationGrid() {
                               {item.title}
                             </span>
                             <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
-                              <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5" />
+                              <ArrowLeft className={`size-4 transition-transform ${isRtl ? 'group-hover:-translate-x-0.5' : 'rotate-180 group-hover:translate-x-0.5'}`} />
                             </div>
                           </button>
                         ))}
@@ -241,25 +245,25 @@ export function DestinationGrid() {
                   {step === "airports" && activeService && (
                     <motion.div
                       key="airports"
-                      initial={{ opacity: 0, x: -20 }}
+                      initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
                       animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 20 }}
+                      exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
                       transition={{ duration: 0.3 }}
                     >
                       <button 
                         onClick={() => setStep("services")}
                         className="mb-6 flex items-center gap-2 text-sm font-semibold text-muted-foreground hover:text-primary transition-colors"
                       >
-                        <ArrowLeft className="size-4 rotate-180" />
-                        رجوع للخدمات
+                        <ArrowLeft className={`size-4 ${isRtl ? 'rotate-180' : ''}`} />
+                        {t("dest.back_to_services")}
                       </button>
                       
                       <h4 className="text-xl font-bold text-foreground flex items-center gap-2">
-                        <Plane className="size-6 text-primary" />
-                        تحديد المطار
+                        <Plane className={`size-6 text-primary ${isRtl ? '' : 'rotate-90'}`} />
+                        {t("dest.select_airport")}
                       </h4>
                       <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                        الرجاء تحديد المطار المطلوب للحصول على أدق التفاصيل لرحلتك.
+                        {t("dest.select_airport_desc")}
                       </p>
                       
                       <div className="mt-8 grid gap-3">
@@ -296,25 +300,23 @@ export function DestinationGrid() {
                       </div>
                       
                       <h4 className="text-2xl font-bold text-foreground">
-                        مساحة آمنة ومشفّرة
+                        {t("dest.secure_space")}
                       </h4>
-                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base max-w-sm mx-auto">
-                        حفاظاً على سرية بياناتك الشخصية، <strong>نرجو منك تجهيز صورة واضحة لجواز السفر</strong> وإرسالها مباشرة داخل محادثة الواتساب المشفّرة التي ستفتح الآن، لضمان أعلى درجات الأمان وحماية خصوصيتك.
-                      </p>
+                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base max-w-sm mx-auto" dangerouslySetInnerHTML={{__html: t("dest.secure_space_desc")}} />
                       
                       <Button 
                         size="lg" 
                         onClick={proceedToWhatsApp}
                         className="mt-8 w-full sm:w-auto h-12 px-8 text-base shadow-lg shadow-primary/20 bg-emerald-600 hover:bg-emerald-700 text-white"
                       >
-                        حسناً، انتقل للواتساب
+                        {t("dest.go_to_whatsapp")}
                       </Button>
                       
                       <button 
                         onClick={() => setStep(activeService?.airports ? "airports" : "services")}
                         className="mt-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        تراجع
+                        {t("dest.cancel")}
                       </button>
                     </motion.div>
                   )}
@@ -327,4 +329,3 @@ export function DestinationGrid() {
     </>
   );
 }
-

@@ -1,15 +1,19 @@
 import { ArrowDownUp, Info, Minus, PlaneTakeoff, Plus } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "motion/react";
 
 export function FlightQuote() {
-  const [tripType, setTripType] = useState<"ذهاب وعودة" | "ذهاب فقط">("ذهاب وعودة");
+  const { t, i18n } = useTranslation();
+  const [tripType, setTripType] = useState<"round" | "oneway">("round");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [date, setDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [travelers, setTravelers] = useState(1);
+  
+  const isRtl = i18n.dir() === "rtl";
 
   const swapLocations = () => {
     setFrom(to);
@@ -22,15 +26,17 @@ export function FlightQuote() {
   const submit = () => {
     if (navigator.vibrate) navigator.vibrate(18);
     
-    let message = `السلام عليكم،\nأرغب بالاستفسار عن تذكرة طيران لدى مكتب العباد للسفريات والسياحة.\n\nمن: ${from || "غير محدد"}\nإلى: ${to || "غير محدد"}\nنوع الرحلة: ${tripType}\nتاريخ المغادرة: ${date || "غير محدد"}\n`;
+    const tripTypeString = tripType === "round" ? t("flight.round_trip") : t("flight.one_way");
     
-    if (tripType === "ذهاب وعودة" && returnDate) {
-      message += `تاريخ العودة: ${returnDate}\n`;
+    let message = `${t("flight.wa_msg_1")}${from || t("flight.wa_unspecified")}${t("flight.wa_msg_2")}${to || t("flight.wa_unspecified")}${t("flight.wa_msg_3")}${tripTypeString}${t("flight.wa_msg_4")}${date || t("flight.wa_unspecified")}`;
+    
+    if (tripType === "round" && returnDate) {
+      message += `${t("flight.wa_msg_5")}${returnDate}`;
     }
     
-    message += `عدد المسافرين: ${travelers}`;
+    message += `${t("flight.wa_msg_6")}${travelers}`;
     
-    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/967738883371?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -52,20 +58,20 @@ export function FlightQuote() {
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="hidden lg:col-span-5 lg:block lg:sticky lg:top-32"
           >
-            <h2 className="text-4xl font-bold text-[#0D2742]">اعثر على رحلتك المناسبة</h2>
-            <p className="mt-4 text-lg text-muted-foreground">أرسل تفاصيل رحلتك وسنتواصل معك بالخيارات المتاحة.</p>
+            <h2 className="text-4xl font-bold text-[#0D2742]">{t("flight.title")}</h2>
+            <p className="mt-4 text-lg text-muted-foreground">{t("flight.subtitle")}</p>
             
             <div className="relative mt-12 rounded-3xl border border-white bg-white/60 p-8 shadow-sm">
                {/* Decorative route line */}
-               <svg className="absolute -left-12 top-10 -z-10 h-32 w-24 opacity-40 text-primary" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+               <svg className={`absolute ${isRtl ? '-left-12' : '-right-12'} top-10 -z-10 h-32 w-24 opacity-40 text-primary`} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                  <path d="M100 0 C60 0 40 40 40 100" stroke="currentColor" strokeWidth="2" strokeDasharray="4 4" />
                </svg>
                <PlaneTakeoff className="mb-6 size-16 text-primary opacity-20" />
-               <h4 className="text-xl font-bold text-foreground">احجز بكل ثقة</h4>
+               <h4 className="text-xl font-bold text-foreground">{t("flight.book_confidence")}</h4>
                <ul className="mt-4 space-y-3 text-muted-foreground">
-                  <li>• أفضل أسعار التذاكر المتاحة</li>
-                  <li>• دعم مستمر قبل وأثناء الرحلة</li>
-                  <li>• تغييرات وإلغاء مرن</li>
+                  <li>• {t("flight.best_prices")}</li>
+                  <li>• {t("flight.support")}</li>
+                  <li>• {t("flight.flexible")}</li>
                </ul>
             </div>
           </motion.div>
@@ -81,8 +87,8 @@ export function FlightQuote() {
             
             {/* Mobile Header */}
             <div className="mb-8 lg:hidden">
-              <h2 className="text-2xl font-bold text-[#0D2742]">اعثر على رحلتك المناسبة</h2>
-              <p className="mt-2 text-sm text-muted-foreground">أرسل تفاصيل رحلتك وسنتواصل معك بالخيارات المتاحة.</p>
+              <h2 className="text-2xl font-bold text-[#0D2742]">{t("flight.title")}</h2>
+              <p className="mt-2 text-sm text-muted-foreground">{t("flight.subtitle")}</p>
             </div>
 
             <div className="relative rounded-[2rem] border border-white bg-white p-5 shadow-xl sm:p-8">
@@ -91,33 +97,33 @@ export function FlightQuote() {
               <div className="mb-6 flex rounded-xl bg-surface p-1">
                 <button
                   type="button"
-                  onClick={() => setTripType("ذهاب فقط")}
-                  className={`flex-1 rounded-lg py-3 text-sm font-bold transition-all ${tripType === "ذهاب فقط" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setTripType("oneway")}
+                  className={`flex-1 rounded-lg py-3 text-sm font-bold transition-all ${tripType === "oneway" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  ذهاب فقط
+                  {t("flight.one_way")}
                 </button>
                 <button
                   type="button"
-                  onClick={() => setTripType("ذهاب وعودة")}
-                  className={`flex-1 rounded-lg py-3 text-sm font-bold transition-all ${tripType === "ذهاب وعودة" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
+                  onClick={() => setTripType("round")}
+                  className={`flex-1 rounded-lg py-3 text-sm font-bold transition-all ${tripType === "round" ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
                 >
-                  ذهاب وعودة
+                  {t("flight.round_trip")}
                 </button>
               </div>
 
               {/* 2. From / To with Swap */}
               <div className="relative mb-6 flex flex-col gap-3 rounded-2xl border border-border bg-card p-3">
                 <div className="relative z-10 flex h-14 items-center gap-3 rounded-xl bg-surface px-4 focus-within:ring-1 focus-within:ring-primary">
-                  <span className="w-8 text-xs font-bold text-muted-foreground">من</span>
+                  <span className="w-8 text-xs font-bold text-muted-foreground">{t("flight.from")}</span>
                   <input
                     value={from}
                     onChange={(e) => setFrom(e.target.value)}
-                    placeholder="مدينة المغادرة"
+                    placeholder={t("flight.from_placeholder")}
                     className="w-full bg-transparent text-sm font-bold text-foreground outline-none placeholder:text-muted-foreground/50 placeholder:font-medium"
                   />
                 </div>
                 
-                <div className="absolute right-6 top-1/2 z-20 -translate-y-1/2">
+                <div className={`absolute ${isRtl ? 'right-6' : 'left-6'} top-1/2 z-20 -translate-y-1/2`}>
                    <button 
                      type="button"
                      onClick={swapLocations}
@@ -129,11 +135,11 @@ export function FlightQuote() {
                 </div>
 
                 <div className="relative z-10 flex h-14 items-center gap-3 rounded-xl bg-surface px-4 focus-within:ring-1 focus-within:ring-primary">
-                  <span className="w-8 text-xs font-bold text-muted-foreground">إلى</span>
+                  <span className="w-8 text-xs font-bold text-muted-foreground">{t("flight.to")}</span>
                   <input
                     value={to}
                     onChange={(e) => setTo(e.target.value)}
-                    placeholder="وجهة الوصول"
+                    placeholder={t("flight.to_placeholder")}
                     className="w-full bg-transparent text-sm font-bold text-foreground outline-none placeholder:text-muted-foreground/50 placeholder:font-medium"
                   />
                 </div>
@@ -142,7 +148,7 @@ export function FlightQuote() {
               {/* 3. Dates */}
               <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4">
                 <div className="flex h-16 flex-col justify-center rounded-xl border border-border bg-card px-4 focus-within:border-primary focus-within:ring-1">
-                  <span className="text-[10px] font-bold text-muted-foreground">تاريخ المغادرة</span>
+                  <span className="text-[10px] font-bold text-muted-foreground">{t("flight.depart_date")}</span>
                   <input
                     type="date"
                     value={date}
@@ -152,7 +158,7 @@ export function FlightQuote() {
                 </div>
 
                 <AnimatePresence mode="popLayout">
-                  {tripType === "ذهاب وعودة" && (
+                  {tripType === "round" && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -160,7 +166,7 @@ export function FlightQuote() {
                       transition={{ duration: 0.2 }}
                       className="flex h-16 flex-col justify-center rounded-xl border border-border bg-card px-4 focus-within:border-primary focus-within:ring-1"
                     >
-                      <span className="text-[10px] font-bold text-muted-foreground">تاريخ العودة</span>
+                      <span className="text-[10px] font-bold text-muted-foreground">{t("flight.return_date")}</span>
                       <input
                         type="date"
                         value={returnDate}
@@ -174,7 +180,7 @@ export function FlightQuote() {
 
               {/* 4. Passengers */}
               <div className="mb-8 flex h-16 items-center justify-between rounded-xl border border-border bg-card px-5">
-                <span className="text-sm font-bold text-foreground">عدد المسافرين</span>
+                <span className="text-sm font-bold text-foreground">{t("flight.passengers")}</span>
                 <div className="flex items-center gap-4">
                   <button
                     type="button"
@@ -207,12 +213,12 @@ export function FlightQuote() {
                       <div className="flex items-start gap-3">
                         <Info className="mt-0.5 size-5 shrink-0 text-primary" />
                         <div className="text-sm">
-                          <strong className="mb-1.5 block text-foreground">رحلتك</strong>
+                          <strong className="mb-1.5 block text-foreground">{t("flight.your_trip")}</strong>
                           <p className="leading-relaxed text-muted-foreground font-medium">
                             {from} <ArrowDownUp className="inline size-3 mx-1 rotate-90" /> {to} <br/>
-                            {tripType} <br/>
-                            {date} {tripType === "ذهاب وعودة" && returnDate ? ` ← ${returnDate}` : ""} <br/>
-                            {travelers} {travelers > 2 && travelers < 11 ? "مسافرين" : "مسافر"}
+                            {tripType === "round" ? t("flight.round_trip") : t("flight.one_way")} <br/>
+                            {date} {tripType === "round" && returnDate ? ` ← ${returnDate}` : ""} <br/>
+                            {travelers} {travelers > 2 && travelers < 11 ? t("flight.passengers_count") : t("flight.passenger")}
                           </p>
                         </div>
                       </div>
@@ -227,7 +233,7 @@ export function FlightQuote() {
                 onClick={submit}
                 className="h-14 w-full rounded-xl text-lg font-bold"
               >
-                إرسال الطلب عبر واتساب
+                {t("flight.submit")}
               </Button>
             </div>
           </motion.div>

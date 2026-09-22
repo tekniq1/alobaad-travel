@@ -1,9 +1,6 @@
 import { Send, MapPin, Phone, Clock3, Facebook, Instagram, Twitter } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import logoAsset from "../assets/alobaad-logo.jpg.asset.json";
-
-const WA_MESSAGE = encodeURIComponent(
-  "السلام عليكم، أرغب بالاستفسار عن خدمات العباد للسفريات والسياحة."
-);
 
 function WhatsAppIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -13,30 +10,35 @@ function WhatsAppIcon({ className = "size-4" }: { className?: string }) {
   );
 }
 
-const navLinks = [
-  { label: "الرئيسية", href: "#home" },
-  { label: "الوجهات", href: "#destinations" },
-  { label: "تذاكر الطيران", href: "#flights" },
-  { label: "من نحن", href: "#about" },
-  { label: "تواصل معنا", href: "#contact" },
-];
-
-const services = [
-  "الموافقات الأمنية",
-  "تأشيرات الزيارة والعبور",
-  "تذاكر الطيران",
-  "برامج العمرة",
-];
-
 export function SiteFooter() {
+  const { t, i18n } = useTranslation();
+  const isRtl = i18n.dir() === "rtl";
+  
+  const WA_MESSAGE = encodeURIComponent(t("hero.wa_msg"));
+
+  const navLinks = [
+    { label: t("nav.home"), href: "#home" },
+    { label: t("nav.destinations"), href: "#destinations" },
+    { label: t("nav.flights"), href: "#flights" },
+    { label: t("nav.about"), href: "#about" },
+    { label: t("nav.contact"), href: "#contact" },
+  ];
+
+  const services = [
+    t("footer.svc1"),
+    t("footer.svc2"),
+    t("footer.svc3"),
+    t("footer.svc4"),
+  ];
+
   return (
     <footer id="contact" className="relative overflow-hidden bg-[#0A1B2E]">
       {/* Top transition line */}
       <div className="h-px w-full bg-gradient-to-r from-transparent via-[#159DD3]/20 to-transparent" />
 
       {/* Subtle paper-plane watermark */}
-      <div className="pointer-events-none absolute -left-16 bottom-8 opacity-[0.03]">
-        <Send className="size-[360px] -rotate-[20deg] text-white" />
+      <div className={`pointer-events-none absolute ${isRtl ? '-left-16' : '-right-16'} bottom-8 opacity-[0.03]`}>
+        <Send className={`size-[360px] ${isRtl ? '-rotate-[20deg]' : 'rotate-[20deg]'} text-white`} />
       </div>
 
       {/* Main content */}
@@ -47,34 +49,34 @@ export function SiteFooter() {
           <div className="col-span-2 lg:col-span-1">
             <a href="#home" className="flex items-center gap-3">
               <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full bg-[#0D2742] shadow-sm border border-white/10">
-                <img src="/logo-new.png" alt="شعار العباد" className="h-full w-full object-cover scale-110" />
+                <img src="/logo-new.png" alt={t("hero.brand")} className="h-full w-full object-cover scale-110" />
               </span>
               <span>
-                <strong className="block text-base font-bold text-white">العباد</strong>
-                <small className="block text-[10px] uppercase tracking-wide text-white/50">للسفريات والسياحة</small>
+                <strong className="block text-base font-bold text-white">{t("meta.rootTitle").split(" ")[0]}</strong>
+                <small className="block text-[10px] uppercase tracking-wide text-white/50">{t("meta.rootTitle").substring(t("meta.rootTitle").indexOf(" ") + 1)}</small>
               </span>
             </a>
 
             <p className="mt-5 max-w-xs text-sm font-medium leading-relaxed text-white/55">
-              خدمات سفر وتأشيرات وتذاكر بتواصل مباشر وسهل.
+              {t("footer.tagline")}
             </p>
 
             {/* WhatsApp CTA */}
             <a
-              href={`https://wa.me/?text=${WA_MESSAGE}`}
+              href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-[#159DD3]/15 px-4 py-3 text-sm font-bold text-[#159DD3] ring-1 ring-[#159DD3]/20 transition-all hover:bg-[#159DD3]/25 hover:ring-[#159DD3]/40 active:scale-[0.97]"
             >
               <WhatsAppIcon className="size-4" />
-              تواصل عبر واتساب
+              {t("footer.contact_us")}
             </a>
           </div>
 
           {/* Col 2 — Quick links */}
           <div className="col-span-1">
-            <h4 className="mb-5 text-sm font-bold uppercase tracking-wider text-white/40">روابط سريعة</h4>
-            <nav aria-label="روابط التنقل في الفوتر">
+            <h4 className="mb-5 text-sm font-bold uppercase tracking-wider text-white/40">{t("footer.quick_links")}</h4>
+            <nav aria-label="Footer Navigation">
               <ul className="grid gap-3">
                 {navLinks.map((link) => (
                   <li key={link.href}>
@@ -92,7 +94,7 @@ export function SiteFooter() {
 
           {/* Col 3 — Services */}
           <div className="col-span-1">
-            <h4 className="mb-5 text-sm font-bold uppercase tracking-wider text-white/40">خدماتنا</h4>
+            <h4 className="mb-5 text-sm font-bold uppercase tracking-wider text-white/40">{t("footer.services")}</h4>
             <ul className="grid gap-3">
               {services.map((svc) => (
                 <li key={svc} className="text-sm font-medium text-white/60">
@@ -104,25 +106,25 @@ export function SiteFooter() {
 
           {/* Col 4 — Contact */}
           <div className="col-span-2 lg:col-span-1">
-            <h4 className="mb-5 text-sm font-bold uppercase tracking-wider text-white/40">تواصل معنا</h4>
+            <h4 className="mb-5 text-sm font-bold uppercase tracking-wider text-white/40">{t("footer.contact_info")}</h4>
             <ul className="grid gap-4">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-[#159DD3]" />
-                <span className="text-sm font-medium text-white/60">عدن، الجمهورية اليمنية</span>
+                <span className="text-sm font-medium text-white/60">{t("footer.address")}</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-4 shrink-0 text-[#159DD3]" />
                 <a
-                  href="tel:+967770000000"
+                  href="tel:+967738883371"
                   dir="ltr"
                   className="text-sm font-medium text-white/60 transition-colors hover:text-white"
                 >
-                  +967 770 000 000
+                  +967 738 883 371
                 </a>
               </li>
               <li className="flex items-start gap-3">
                 <Clock3 className="mt-0.5 size-4 shrink-0 text-[#159DD3]" />
-                <span className="text-sm font-medium text-white/60">السبت – الخميس<br />8 صباحاً – 8 مساءً</span>
+                <span className="text-sm font-medium text-white/60 whitespace-pre-line">{t("footer.hours")}</span>
               </li>
             </ul>
           </div>
@@ -132,28 +134,28 @@ export function SiteFooter() {
         <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-white/[0.07] py-8 sm:flex-row">
           {/* Copyright */}
           <p className="text-xs font-medium text-white/35">
-            © {new Date().getFullYear()} العباد للسفريات والسياحة. جميع الحقوق محفوظة.
+            &copy; {new Date().getFullYear()} {t("footer.copyright")}
           </p>
 
           {/* Social icons */}
           <div className="flex items-center gap-5">
             <a
               href="#"
-              aria-label="فيسبوك"
+              aria-label="Facebook"
               className="text-white/40 transition-colors hover:text-white active:scale-90"
             >
               <Facebook className="size-5" />
             </a>
             <a
               href="#"
-              aria-label="إنستغرام"
+              aria-label="Instagram"
               className="text-white/40 transition-colors hover:text-white active:scale-90"
             >
               <Instagram className="size-5" />
             </a>
             <a
               href="#"
-              aria-label="تويتر"
+              aria-label="Twitter"
               className="text-white/40 transition-colors hover:text-white active:scale-90"
             >
               <Twitter className="size-5" />

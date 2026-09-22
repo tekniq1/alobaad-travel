@@ -115,7 +115,7 @@ export function HeroSlider() {
                   {currentSlide.cta} <ArrowLeft className="size-4" />
                 </a>
                 <a 
-                  href={`https://wa.me/?text=${encodeURIComponent("السلام عليكم، أرغب بالاستفسار عن خدمات العباد للسفريات والسياحة.")}`}
+                  href={`https://wa.me/967738883371?text=${encodeURIComponent("السلام عليكم، أرغب بالاستفسار عن خدمات العباد للسفريات والسياحة.")}`}
                   target="_blank"
                   rel="noreferrer"
                   className="flex h-12 items-center gap-2 rounded-xl border border-white/20 bg-white/5 px-6 text-sm font-bold text-white backdrop-blur-md transition-all hover:bg-white/10 active:scale-[0.97] sm:h-14 sm:px-8 sm:text-base"
