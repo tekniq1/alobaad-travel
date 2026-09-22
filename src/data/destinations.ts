@@ -13,6 +13,7 @@ export type Service = {
 export type Destination = {
   id: string;
   name: string;
+  flagImg: string;
   image: string;
   description: string;
   services: Service[];
@@ -21,9 +22,10 @@ export type Destination = {
 export const destinations: Destination[] = [
   {
     id: "oman",
-    name: "سلطنة عُمان",
-    image: "https://images.unsplash.com/photo-1564507004663-b6dfb3c824d5?q=80&w=1200&auto=format&fit=crop",
-    description: "تأشيرات • موافقات • تذاكر",
+    name: "سلطنة عمان",
+    flagImg: "/flag-oman.jpg",
+    image: "/oman-destination.jpg",
+    description: "تأشيرات، موافقات، تذاكر طيران",
     services: [
       { title: "الموافقات الأمنية", whatsappMessage: "السلام عليكم، أرغب بالاستفسار عن الموافقات الأمنية لسلطنة عمان.", requiresPassport: true },
       { title: "تأشيرة عبور", whatsappMessage: "السلام عليكم، أرغب بالاستفسار عن تأشيرة العبور لسلطنة عمان.", requiresPassport: true },
@@ -43,7 +45,8 @@ export const destinations: Destination[] = [
   {
     id: "egypt",
     name: "مصر",
-    image: "https://images.unsplash.com/photo-1572252009286-268acec5ca0a?q=80&w=800&auto=format&fit=crop",
+    flagImg: "/flag-egypt.jpg",
+    image: "/egypt-pyramids.jpg",
     description: "موافقات • تذاكر",
     services: [
       { title: "الموافقات الأمنية", whatsappMessage: "السلام عليكم، أرغب بالاستفسار عن الموافقات الأمنية لجمهورية مصر.", requiresPassport: true },
@@ -61,7 +64,8 @@ export const destinations: Destination[] = [
   {
     id: "ksa",
     name: "السعودية",
-    image: "https://images.unsplash.com/photo-1591604129939-f1efa4d9f7fa?q=80&w=1200&auto=format&fit=crop",
+    flagImg: "/flag-ksa.jpg",
+    image: "/ksa-destination.jpg",
     description: "عمرة • طيران",
     services: [
       { 
@@ -89,7 +93,7 @@ export const destinations: Destination[] = [
   {
     id: "tourism",
     name: "الرحلات السياحية",
-    image: "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1200&auto=format&fit=crop",
+    image: "/tourism-destination.jpg",
     description: "رحلات وتجارب سياحية لوجهات متعددة",
     services: [
       { title: "تركيا", whatsappMessage: "السلام عليكم، أرغب بالاستفسار عن الرحلات السياحية والتأشيرات إلى تركيا.", requiresPassport: true },
@@ -100,6 +104,7 @@ export const destinations: Destination[] = [
   {
     id: "india",
     name: "الهند",
+    flagImg: "/flag-india.jpg",
     image: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?q=80&w=1200&auto=format&fit=crop",
     description: "تأشيرات علاجية • تذاكر",
     services: [
@@ -119,7 +124,8 @@ export const destinations: Destination[] = [
   {
     id: "socotra",
     name: "سقطرى",
-    image: "https://images.unsplash.com/photo-1635338148948-4395df3d0a63?q=80&w=1200&auto=format&fit=crop",
+    flagImg: "/flag-yemen.jpg",
+    image: "/socotra-destination.jpg",
     description: "رحلات متكاملة",
     services: [
       { title: "رحلات متكاملة", whatsappMessage: "السلام عليكم، أرغب بالاستفسار عن الرحلات المتكاملة إلى سقطرى.", requiresPassport: true }
@@ -128,7 +134,8 @@ export const destinations: Destination[] = [
   {
     id: "malaysia",
     name: "ماليزيا",
-    image: "https://images.unsplash.com/photo-1599423300746-b62533397364?q=80&w=1200&auto=format&fit=crop",
+    flagImg: "/flag-malaysia.jpg",
+    image: "/malaysia-destination.jpg",
     description: "تذاكر • منح دراسية • سياحة",
     services: [
       { 

@@ -118,6 +118,13 @@ export function DestinationGrid() {
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1B2E]/90 via-[#0A1B2E]/20 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
               
+              {/* Country Flag Badge */}
+              {destination.flagImg && (
+                <div className="absolute top-4 right-4 z-10 size-10 rounded-full border-2 border-white/20 overflow-hidden shadow-lg">
+                  <img src={destination.flagImg} alt={`علم ${destination.name}`} className="w-full h-full object-cover" />
+                </div>
+              )}
+              
               {/* Subtle boarding pass style edge line */}
               <div className="absolute left-4 right-4 bottom-4 top-4 border border-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none hidden lg:block" />
 
@@ -165,6 +172,13 @@ export function DestinationGrid() {
               <div className="relative h-44 shrink-0 md:h-auto md:w-[45%] lg:w-[40%]">
                 <img src={selected.image} alt={selected.name} className="h-full w-full object-cover" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A1B2E]/90 via-[#0A1B2E]/30 to-transparent" />
+                
+                {/* Flag Badge inside Modal */}
+                {selected.flagImg && (
+                  <div className="absolute top-5 right-5 z-20 size-12 rounded-full border-2 border-white/20 overflow-hidden shadow-xl">
+                    <img src={selected.flagImg} alt={`علم ${selected.name}`} className="w-full h-full object-cover" />
+                  </div>
+                )}
                 
                 {/* Decorative passport stamp overlay */}
                 <div className="absolute top-10 right-10 rotate-12 opacity-10 pointer-events-none mix-blend-overlay">

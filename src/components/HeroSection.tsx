@@ -74,18 +74,20 @@ export function HeroSection() {
             </div>
           </motion.div>
 
-          {/* 3D Scene — Mobile */}
+          {/* Hero Image — Mobile */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.9, delay: 0.25 }}
-            className="relative"
+            className="relative mt-10 w-full"
           >
-            <Suspense fallback={<div className="h-[320px] w-full sm:h-[380px]" />}>
-              <TravelScene3D className="h-[320px] w-full sm:h-[380px]" />
-            </Suspense>
-            {/* Fade to white at bottom */}
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-white to-transparent" />
+            <div className="relative mx-auto max-w-md overflow-hidden rounded-[2rem] shadow-2xl shadow-[#159DD3]/20 ring-4 ring-white/60">
+              <img 
+                src="/main-hero.jpg" 
+                alt="وجهات سياحية عالمية مع العباد" 
+                className="w-full h-[360px] object-cover"
+              />
+            </div>
           </motion.div>
         </div>
 
@@ -124,28 +126,30 @@ export function HeroSection() {
                   تواصل عبر واتساب
                 </a>
               </div>
-
-              {/* Subtle drag hint */}
-              <p className="mt-8 flex items-center gap-2 text-xs text-muted-foreground/60">
-                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                </svg>
-                اسحب للدوران
-              </p>
             </div>
 
-            {/* Left: 3D Scene */}
+            {/* Left: Hero Image (Replacing 3D) */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1.0, delay: 0.15, ease: "easeOut" }}
-              className="relative"
+              className="relative w-full"
             >
               {/* Glow blob */}
-              <div className="absolute inset-0 -z-10 rounded-full bg-[#159DD3]/6 blur-3xl scale-75" />
-              <Suspense fallback={<div className="h-[560px] w-full" />}>
-                <TravelScene3D className="h-[560px] w-full" />
-              </Suspense>
+              <div className="absolute inset-0 -z-10 translate-y-8 scale-90 rounded-full bg-[#159DD3]/20 blur-[80px]" />
+              
+              {/* Image Container with floating animation */}
+              <motion.div 
+                animate={{ y: [0, -12, 0] }}
+                transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                className="relative mx-auto w-full max-w-[500px] overflow-hidden rounded-[2.5rem] shadow-[0_20px_60px_-15px_rgba(21,157,211,0.3)] ring-8 ring-white/80"
+              >
+                <img 
+                  src="/main-hero.jpg" 
+                  alt="السفر حول العالم مع العباد" 
+                  className="w-full h-[520px] object-cover transition-transform duration-700 hover:scale-105"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </div>

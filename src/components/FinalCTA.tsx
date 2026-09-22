@@ -35,7 +35,7 @@ export function FinalCTA() {
             {/* Image */}
             <div className="relative h-[260px] sm:h-[320px]">
               <img
-                src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1200&auto=format&fit=crop"
+                src="/cta-airplane.jpg"
                 alt="سفر"
                 className="h-full w-full object-cover"
                 loading="lazy"
@@ -107,7 +107,7 @@ export function FinalCTA() {
           {/* Image side */}
           <div className="relative">
             <img
-              src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?q=80&w=1200&auto=format&fit=crop"
+              src="/cta-airplane.jpg"
               alt="سفر"
               className="h-full w-full object-cover"
               loading="lazy"

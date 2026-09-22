@@ -1,11 +1,14 @@
 import { useRef, useEffect } from "react";
-import { Plane, MapPin } from "lucide-react";
+import { Plane } from "lucide-react";
 
 const actions = [
-  { id: "oman",    label: "سلطنة عُمان",    isDestination: true  },
-  { id: "egypt",   label: "مصر",             isDestination: true  },
-  { id: "ksa",     label: "السعودية",        isDestination: true  },
-  { id: "flights", label: "تذاكر الطيران",  isDestination: false },
+  { id: "ksa",      label: "السعودية",       flagImg: "/flag-ksa.jpg", isDestination: true  },
+  { id: "egypt",    label: "مصر",            flagImg: "/flag-egypt.jpg", isDestination: true  },
+  { id: "oman",     label: "عمان",           flagImg: "/flag-oman.jpg", isDestination: true  },
+  { id: "india",    label: "الهند",          flagImg: "/flag-india.jpg", isDestination: true  },
+  { id: "socotra",  label: "سقطرى",          flagImg: "/flag-yemen.jpg", isDestination: true  },
+  { id: "malaysia", label: "ماليزيا",        flagImg: "/flag-malaysia.jpg", isDestination: true  },
+  { id: "flights",  label: "تذاكر طيران",    isDestination: false },
 ];
 
 export function QuickActionsBar() {
@@ -106,7 +109,7 @@ export function QuickActionsBar() {
 
   return (
     <div className="relative z-20 -mt-3 sm:-mt-5">
-      {/* ── MOBILE: cyclic DOM ticker ── */}
+      {/* -- MOBILE: cyclic DOM ticker -- */}
       <div className="lg:hidden">
         <div
           ref={scrollRef}
@@ -115,7 +118,7 @@ export function QuickActionsBar() {
           onTouchEnd={scheduleResume}
           onMouseEnter={pause}
           onMouseLeave={scheduleResume}
-          aria-label="وجهات وخدمات سريعة"
+          aria-label="???? ???? ???????"
           className="flex overflow-x-auto py-4 px-2 hide-scrollbar scroll-smooth-disabled"
           style={{ scrollBehavior: 'auto' }}
         >
@@ -126,15 +129,18 @@ export function QuickActionsBar() {
               aria-label={action.label}
               className="mx-2 flex min-w-[135px] shrink-0 items-center justify-center gap-3 rounded-2xl border border-[#0D2742]/10 bg-white px-5 py-3.5 shadow-[0_4px_16px_rgba(13,39,66,0.05)] transition-transform active:scale-95"
             >
-              <span className={`flex size-8 shrink-0 items-center justify-center rounded-full ${
+              <span className={`flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden ${
                 action.isDestination
-                  ? "bg-[#EAF6FB] text-[#159DD3]"
+                  ? "bg-[#EAF6FB]"
                   : "bg-[#159DD3] text-white"
               }`}>
-                {action.isDestination
-                  ? <MapPin className="size-4" />
-                  : <Plane  className="size-4" />
-                }
+                {action.flagImg ? (
+                  <img src={action.flagImg} alt={action.label} className="w-full h-full object-cover" />
+                ) : action.flagEmoji ? (
+                  <span className="text-xl leading-none">{action.flagEmoji}</span>
+                ) : (
+                  <Plane className="size-4" />
+                )}
               </span>
               <span className="whitespace-nowrap text-sm font-bold text-[#0D2742]">
                 {action.label}
@@ -144,25 +150,28 @@ export function QuickActionsBar() {
         </div>
       </div>
 
-      {/* ── DESKTOP: stable grid ── */}
+      {/* -- DESKTOP: stable grid -- */}
       <div className="hidden lg:block px-5 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-5xl rounded-3xl bg-white p-3.5 shadow-[0_8px_30px_rgba(13,39,66,0.08)]">
-          <div className="grid grid-cols-4 gap-4">
+        <div className="mx-auto max-w-6xl rounded-3xl bg-white p-3.5 shadow-[0_8px_30px_rgba(13,39,66,0.08)]">
+          <div className="flex flex-wrap items-center justify-center gap-4">
             {actions.map((action) => (
               <button
                 key={action.id}
                 onClick={() => trigger(action)}
-                className="group flex items-center gap-3.5 rounded-2xl bg-[#F7FAFC] px-5 py-4 transition-all hover:bg-[#EAF6FB] hover:shadow-sm"
+                className="group flex items-center justify-center gap-3.5 rounded-2xl bg-[#F7FAFC] px-6 py-4 transition-all hover:bg-[#EAF6FB] hover:shadow-sm"
               >
-                <span className={`flex size-10 shrink-0 items-center justify-center rounded-full transition-colors ${
+                <span className={`flex size-10 shrink-0 items-center justify-center rounded-full overflow-hidden transition-colors ${
                   action.isDestination
-                    ? "bg-[#EAF6FB] text-[#159DD3] group-hover:bg-[#0D2742] group-hover:text-white"
+                    ? "bg-[#EAF6FB] group-hover:bg-[#0D2742]"
                     : "bg-[#159DD3] text-white group-hover:bg-[#0D2742]"
                 }`}>
-                  {action.isDestination
-                    ? <MapPin className="size-5" />
-                    : <Plane  className="size-5" />
-                  }
+                  {action.flagImg ? (
+                    <img src={action.flagImg} alt={action.label} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                  ) : action.flagEmoji ? (
+                    <span className="text-2xl leading-none transition-transform group-hover:scale-110">{action.flagEmoji}</span>
+                  ) : (
+                    <Plane className="size-5 transition-transform group-hover:scale-110" />
+                  )}
                 </span>
                 <span className="font-bold text-[#0D2742]">{action.label}</span>
               </button>
