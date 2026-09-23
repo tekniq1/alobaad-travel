@@ -80,6 +80,9 @@ export function FinalCTA() {
                   href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(e) => {
+                    import("../lib/api").then(({ logWhatsAppClick }) => logWhatsAppClick("hero_cta_mobile"));
+                  }}
                   className="flex h-14 w-full items-center justify-center gap-3 rounded-xl bg-primary text-lg font-bold text-primary-foreground shadow-[0_8px_20px_var(--shadow-primary)] transition-all hover:-translate-y-0.5 hover:bg-primary-bright active:scale-[0.98]"
                 >
                   <WhatsAppIcon className="size-5" />
@@ -133,6 +136,9 @@ export function FinalCTA() {
                 href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => {
+                  import("../lib/api").then(({ logWhatsAppClick }) => logWhatsAppClick("hero_cta_desktop"));
+                }}
                 className="flex h-14 items-center justify-center gap-3 rounded-xl bg-primary px-8 text-base font-bold text-primary-foreground shadow-[0_8px_20px_var(--shadow-primary)] transition-all hover:-translate-y-0.5 hover:bg-primary-bright active:scale-[0.98]"
               >
                 <WhatsAppIcon className="size-5" />

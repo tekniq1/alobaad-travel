@@ -1,18 +1,25 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, X, ShieldCheck, Plane, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, X, ShieldCheck, Plane, CheckCircle2, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
-import { destinations, Destination, Service, Airport } from "../data/destinations";
+import { useQuery } from "@tanstack/react-query";
+import { fetchDestinations, logWhatsAppClick } from "../lib/api";
 
 export function DestinationGrid() {
   const { t, i18n } = useTranslation();
-  const [selected, setSelected] = useState<Destination | null>(null);
+  const [selected, setSelected] = useState<any | null>(null);
   const [step, setStep] = useState<"services" | "airports" | "security">("services");
-  const [activeService, setActiveService] = useState<Service | null>(null);
+  const [activeService, setActiveService] = useState<any | null>(null);
   const [whatsappMsg, setWhatsappMsg] = useState<string>("");
 
   const isRtl = i18n.dir() === "rtl";
+  const lang = i18n.language; // 'ar' or 'en'
+
+  const { data: destinations, isLoading, isError } = useQuery({
+    queryKey: ['destinations'],
+    queryFn: fetchDestinations,
+  });
 
   // Prevent scroll when modal is open
   useEffect(() => {
@@ -24,7 +31,7 @@ export function DestinationGrid() {
     return () => { document.body.style.overflow = "unset"; };
   }, [selected]);
 
-  const openDestination = (destination: Destination) => {
+  const openDestination = (destination: any) => {
     if (navigator.vibrate) navigator.vibrate(16);
     setSelected(destination);
     setStep("services");
@@ -34,14 +41,16 @@ export function DestinationGrid() {
   useEffect(() => {
     const handleOpen = (e: Event) => {
       const customEvent = e as CustomEvent;
-      const dest = destinations.find(d => d.id === customEvent.detail.id);
-      if (dest) {
-        openDestination(dest);
+      if (destinations) {
+        const dest = destinations.find(d => d.slug === customEvent.detail.id);
+        if (dest) {
+          openDestination(dest);
+        }
       }
     };
     window.addEventListener("openDestinationModal", handleOpen);
     return () => window.removeEventListener("openDestinationModal", handleOpen);
-  }, []);
+  }, [destinations]);
 
   const closeDestination = () => {
     setSelected(null);
@@ -52,34 +61,59 @@ export function DestinationGrid() {
     }, 300);
   };
 
-  const handleServiceClick = (service: Service) => {
+  const handleServiceClick = (service: any) => {
     if (navigator.vibrate) navigator.vibrate(10);
     
     if (service.airports && service.airports.length > 0) {
       setActiveService(service);
       setStep("airports");
-    } else if (service.requiresPassport) {
-      setWhatsappMsg(service.whatsappMessage);
-      setStep("security");
     } else {
-      window.open(`https://wa.me/967738883371?text=${encodeURIComponent(service.whatsappMessage)}`, "_blank", "noopener,noreferrer");
+      const msg = lang === "ar" ? service.whatsappMessage_ar : service.whatsappMessage_en;
+      if (service.requiresPassport) {
+        setWhatsappMsg(msg);
+        setStep("security");
+      } else {
+        // Log click
+        logWhatsAppClick("destination_service", selected?.id, service.id);
+        window.open(`https://wa.me/967738883371?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+      }
     }
   };
 
-  const handleAirportClick = (airport: Airport, service: Service) => {
+  const handleAirportClick = (airport: any, service: any) => {
     if (navigator.vibrate) navigator.vibrate(10);
+    const msg = lang === "ar" ? airport.whatsappMessage_ar : airport.whatsappMessage_en;
     if (service.requiresPassport) {
-      setWhatsappMsg(airport.whatsappMessage);
+      setWhatsappMsg(msg);
       setStep("security");
     } else {
-      window.open(`https://wa.me/967738883371?text=${encodeURIComponent(airport.whatsappMessage)}`, "_blank", "noopener,noreferrer");
+      // Log click
+      logWhatsAppClick("airport_selection", selected?.id, service.id, { airport_id: airport.id });
+      window.open(`https://wa.me/967738883371?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
     }
   };
 
   const proceedToWhatsApp = () => {
+    logWhatsAppClick("destination_service_with_passport", selected?.id, activeService?.id);
     window.open(`https://wa.me/967738883371?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
     closeDestination();
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="size-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isError || !destinations) {
+    return (
+      <div className="flex h-64 flex-col items-center justify-center gap-2">
+        <p className="text-destructive font-medium">{t("errors.somethingWentWrong")}</p>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -87,19 +121,22 @@ export function DestinationGrid() {
         {destinations.map((destination, index) => {
           let layoutClass = "";
           let headingClass = "text-2xl";
-          if (destination.id === "oman" || destination.id === "india") {
+          if (destination.slug === "oman" || destination.slug === "india") {
             layoutClass = "col-span-2 lg:col-span-7 lg:row-span-2 min-h-[380px] lg:min-h-0";
             headingClass = "text-3xl lg:text-5xl";
-          } else if (destination.id === "egypt" || destination.id === "socotra") {
+          } else if (destination.slug === "egypt" || destination.slug === "socotra") {
             layoutClass = "col-span-1 lg:col-span-5 lg:row-span-1 min-h-[200px] lg:min-h-0";
             headingClass = "text-2xl lg:text-3xl";
-          } else if (destination.id === "ksa" || destination.id === "malaysia") {
+          } else if (destination.slug === "ksa" || destination.slug === "malaysia") {
             layoutClass = "col-span-1 lg:col-span-5 lg:row-span-1 min-h-[200px] lg:min-h-0";
             headingClass = "text-2xl lg:text-3xl";
-          } else if (destination.id === "tourism") {
+          } else if (destination.slug === "tourism") {
             layoutClass = "col-span-2 lg:col-span-12 lg:row-span-1 min-h-[220px] lg:min-h-[280px]";
             headingClass = "text-2xl lg:text-4xl";
           }
+
+          const destName = lang === "ar" ? destination.name_ar : destination.name_en;
+          const destDesc = lang === "ar" ? destination.description_ar : destination.description_en;
 
           return (
             <motion.button
@@ -113,19 +150,21 @@ export function DestinationGrid() {
               className={`group relative flex w-full flex-col justify-end overflow-hidden rounded-2xl text-start outline-hidden focus-visible:ring-3 focus-visible:ring-primary/60 lg:rounded-3xl ${layoutClass}`}
             >
               <div className="absolute inset-0">
-                <img 
-                  src={destination.image} 
-                  alt={destination.name}
-                  className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
-                  loading="lazy"
-                />
+                {destination.image && (
+                  <img 
+                    src={destination.image} 
+                    alt={destName}
+                    className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                    loading="lazy"
+                  />
+                )}
               </div>
               <div className="absolute inset-0 bg-gradient-to-t from-[#0A1B2E]/90 via-[#0A1B2E]/20 to-transparent transition-opacity duration-500 group-hover:opacity-90" />
               
               {/* Country Flag Badge */}
               {destination.flagImg && (
                 <div className={`absolute top-4 ${isRtl ? 'right-4' : 'left-4'} z-10 size-10 rounded-full border-2 border-white/20 overflow-hidden shadow-lg`}>
-                  <img src={destination.flagImg} alt={`${t("dest.flag_of")} ${destination.name}`} className="w-full h-full object-cover" />
+                  <img src={destination.flagImg} alt={`${t("dest.flag_of")} ${destName}`} className="w-full h-full object-cover" />
                 </div>
               )}
               
@@ -133,9 +172,9 @@ export function DestinationGrid() {
               <div className="absolute left-4 right-4 bottom-4 top-4 border border-white/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none hidden lg:block" />
 
               <div className="relative z-10 flex flex-col p-5 sm:p-6 lg:p-10 text-white transition-transform duration-500 group-hover:-translate-y-1">
-                <h3 className={`font-bold tracking-wide ${headingClass}`}>{t(`destinations.${destination.id}.name`)}</h3>
+                <h3 className={`font-bold tracking-wide ${headingClass}`}>{destName}</h3>
                 <p className="mt-2 text-sm font-medium text-white/80 lg:text-lg">
-                  {t(`destinations.${destination.id}.desc`)}
+                  {destDesc}
                 </p>
                 
                 <div className="mt-5 flex items-center gap-3 overflow-hidden">
@@ -165,7 +204,7 @@ export function DestinationGrid() {
             <motion.div
               role="dialog"
               aria-modal="true"
-              aria-label={`${t("dest.services_of")} ${t(`destinations.${selected.id}.name`)}`}
+              aria-label={`${t("dest.services_of")} ${lang === "ar" ? selected.name_ar : selected.name_en}`}
               initial={{ y: "100%", opacity: 0.5 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
@@ -174,13 +213,13 @@ export function DestinationGrid() {
             >
               {/* Left Side (Desktop) / Top (Mobile) */}
               <div className="relative h-44 shrink-0 md:h-auto md:w-[45%] lg:w-[40%]">
-                <img src={selected.image} alt={t(`destinations.${selected.id}.name`)} className="h-full w-full object-cover" />
+                {selected.image && <img src={selected.image} alt={lang === "ar" ? selected.name_ar : selected.name_en} className="h-full w-full object-cover" />}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A1B2E]/90 via-[#0A1B2E]/30 to-transparent" />
                 
                 {/* Flag Badge inside Modal */}
                 {selected.flagImg && (
                   <div className={`absolute top-5 ${isRtl ? 'right-5' : 'left-5'} z-20 size-12 rounded-full border-2 border-white/20 overflow-hidden shadow-xl`}>
-                    <img src={selected.flagImg} alt={`${t("dest.flag_of")} ${t(`destinations.${selected.id}.name`)}`} className="w-full h-full object-cover" />
+                    <img src={selected.flagImg} alt={`${t("dest.flag_of")} ${lang === "ar" ? selected.name_ar : selected.name_en}`} className="w-full h-full object-cover" />
                   </div>
                 )}
                 
@@ -203,7 +242,7 @@ export function DestinationGrid() {
                 </Button>
                 
                 <div className={`absolute bottom-5 ${isRtl ? 'right-5' : 'left-5'} sm:bottom-8 ${isRtl ? 'sm:right-8' : 'sm:left-8'}`}>
-                  <h3 className="text-3xl font-bold text-white sm:text-4xl">{t(`destinations.${selected.id}.name`)}</h3>
+                  <h3 className="text-3xl font-bold text-white sm:text-4xl">{lang === "ar" ? selected.name_ar : selected.name_en}</h3>
                 </div>
               </div>
 
@@ -224,20 +263,23 @@ export function DestinationGrid() {
                       </p>
                       
                       <div className="mt-8 grid gap-3">
-                        {selected.services.map((item) => (
-                          <button
-                            key={item.title}
-                            onClick={() => handleServiceClick(item)}
-                            className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
-                          >
-                            <span className="font-semibold text-foreground group-hover:text-primary">
-                              {item.title}
-                            </span>
-                            <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
-                              <ArrowLeft className={`size-4 transition-transform ${isRtl ? 'group-hover:-translate-x-0.5' : 'rotate-180 group-hover:translate-x-0.5'}`} />
-                            </div>
-                          </button>
-                        ))}
+                        {selected.services.map((item: any) => {
+                          const title = lang === "ar" ? item.title_ar : item.title_en;
+                          return (
+                            <button
+                              key={item.id}
+                              onClick={() => handleServiceClick(item)}
+                              className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
+                            >
+                              <span className="font-semibold text-foreground group-hover:text-primary">
+                                {title}
+                              </span>
+                              <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
+                                <ArrowLeft className={`size-4 transition-transform ${isRtl ? 'group-hover:-translate-x-0.5' : 'rotate-180 group-hover:translate-x-0.5'}`} />
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}
@@ -267,20 +309,23 @@ export function DestinationGrid() {
                       </p>
                       
                       <div className="mt-8 grid gap-3">
-                        {activeService.airports?.map((airport) => (
-                          <button
-                            key={airport.name}
-                            onClick={() => handleAirportClick(airport, activeService)}
-                            className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
-                          >
-                            <span className="font-semibold text-foreground group-hover:text-primary">
-                              {airport.name}
-                            </span>
-                            <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
-                              <CheckCircle2 className="size-4 transition-transform group-hover:scale-110" />
-                            </div>
-                          </button>
-                        ))}
+                        {activeService.airports?.map((airport: any) => {
+                          const name = lang === "ar" ? airport.name_ar : airport.name_en;
+                          return (
+                            <button
+                              key={airport.id}
+                              onClick={() => handleAirportClick(airport, activeService)}
+                              className="group flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 text-start transition-all hover:border-primary/30 hover:bg-muted/40 hover:shadow-sm"
+                            >
+                              <span className="font-semibold text-foreground group-hover:text-primary">
+                                {name}
+                              </span>
+                              <div className="flex size-8 items-center justify-center rounded-full bg-surface text-muted-foreground transition-colors group-hover:bg-primary group-hover:text-white">
+                                <CheckCircle2 className="size-4 transition-transform group-hover:scale-110" />
+                              </div>
+                            </button>
+                          );
+                        })}
                       </div>
                     </motion.div>
                   )}

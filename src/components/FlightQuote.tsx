@@ -36,6 +36,13 @@ export function FlightQuote() {
     
     message += `${t("flight.wa_msg_6")}${travelers}`;
     
+    // Log the click
+    import("../lib/api").then(({ logWhatsAppClick }) => {
+      logWhatsAppClick("flight_quote_form", undefined, undefined, {
+        from, to, tripType, date, returnDate, travelers
+      });
+    });
+    
     window.open(`https://wa.me/967738883371?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   };
 
