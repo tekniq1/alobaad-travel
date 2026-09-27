@@ -169,6 +169,39 @@
     "whatsapp": "Contact via WhatsApp",
     "explore": "Explore Destinations"
   },
+  "about": {
+    "tag": "About Us",
+    "title": "Who We Are",
+    "desc1": "At Al-Abbad Travel & Tourism, we always strive to provide the best services to our clients in flight bookings, visa processing, and Umrah programs.",
+    "desc2": "We stand out with our long experience and professional team that guarantees a safe and comfortable trip. We aim to meet your travel needs with reliability and professionalism.",
+    "vision_title": "Our Vision",
+    "vision_desc": "To be the first choice and trusted destination for every traveler seeking comfort and excellence.",
+    "mission_title": "Our Mission",
+    "mission_desc": "To provide comprehensive travel and tourism services with the highest standards of quality, speed, and competitive prices."
+  },
+  "contact": {
+    "tag": "Contact Us",
+    "title": "We Are Here for You",
+    "subtitle": "Do not hesitate to reach out for any inquiry or request. Our team is available to respond to you 24/7.",
+    "address_title": "Address",
+    "address_desc": "Ibb, Yemen | Muscat, Oman",
+    "email_title": "Email",
+    "email_desc": "info@alobaad.com",
+    "phone_title": "Phone / WhatsApp",
+    "phone_desc": "+967 738 883 371",
+    "whatsapp_btn": "Message on WhatsApp",
+    "form_title": "Send Us a Message",
+    "form_subtitle": "Contact us directly through this form and we will reply as soon as possible.",
+    "name": "Full Name",
+    "name_ph": "Enter your name",
+    "phone": "Phone / WhatsApp",
+    "phone_ph": "+967...",
+    "email": "Email (Optional)",
+    "email_ph": "example@mail.com",
+    "message": "Message",
+    "message_ph": "Write your inquiry or request here...",
+    "submit": "Send Message"
+  },
   "footer": {
     "tagline": "Visas, approvals, flight tickets, Umrah and tourism programs.",
     "contact_us": "Contact us via WhatsApp",
@@ -182,5 +215,16 @@
     "svc2": "Security Approvals & Transit",
     "svc3": "Flight Tickets",
     "svc4": "Umrah Programs"
+  },
+  "admin": {
+    "login_title": "Admin Dashboard",
+    "login_subtitle": "Please log in to access the Al-Abbad Travel admin dashboard.",
+    "email": "Email Address",
+    "email_ph": "admin@alobaad.com",
+    "password": "Password",
+    "password_ph": "••••••••",
+    "login_btn": "Sign In",
+    "back_home": "Back to Home",
+    "invalid_creds": "Invalid credentials"
   }
 }

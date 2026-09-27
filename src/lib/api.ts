@@ -5,7 +5,6 @@ export async function fetchDestinations(): Promise<Destination[]> {
   const { data: dests, error: destsError } = await supabase
     .from('destinations')
     .select('*')
-    .eq('is_active', true)
     .order('sort_order');
     
   if (destsError) throw destsError;
@@ -13,7 +12,6 @@ export async function fetchDestinations(): Promise<Destination[]> {
   const { data: services, error: servicesError } = await supabase
     .from('services')
     .select('*')
-    .eq('is_active', true)
     .order('sort_order');
     
   if (servicesError) throw servicesError;

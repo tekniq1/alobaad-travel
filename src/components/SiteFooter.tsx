@@ -1,6 +1,7 @@
 import { Send, MapPin, Phone, Clock3, Facebook, Instagram, Twitter } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import logoAsset from "../assets/alobaad-logo.jpg.asset.json";
+import { useSiteSettings } from "../hooks/useSiteSettings";
 
 function WhatsAppIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -13,15 +14,18 @@ function WhatsAppIcon({ className = "size-4" }: { className?: string }) {
 export function SiteFooter() {
   const { t, i18n } = useTranslation();
   const isRtl = i18n.dir() === "rtl";
-  
+  const { settings } = useSiteSettings();
+
+  const waNumber = settings.whatsapp_number || "967738883371";
   const WA_MESSAGE = encodeURIComponent(t("hero.wa_msg"));
 
+
   const navLinks = [
-    { label: t("nav.home"), href: "#home" },
-    { label: t("nav.destinations"), href: "#destinations" },
-    { label: t("nav.flights"), href: "#flights" },
-    { label: t("nav.about"), href: "#about" },
-    { label: t("nav.contact"), href: "#contact" },
+    { label: t("nav.home"), href: "/" },
+    { label: t("nav.destinations"), href: "/#destinations" },
+    { label: t("nav.flights"), href: "/#flights" },
+    { label: t("nav.about"), href: "/about" },
+    { label: t("nav.contact"), href: "/contact" },
   ];
 
   const services = [
@@ -63,7 +67,7 @@ export function SiteFooter() {
 
             {/* WhatsApp CTA */}
             <a
-              href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
+              href={`https://wa.me/${waNumber}?text=${WA_MESSAGE}`}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-[#159DD3]/15 px-4 py-3 text-sm font-bold text-[#159DD3] ring-1 ring-[#159DD3]/20 transition-all hover:bg-[#159DD3]/25 hover:ring-[#159DD3]/40 active:scale-[0.97]"
@@ -110,16 +114,18 @@ export function SiteFooter() {
             <ul className="grid gap-4">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-[#159DD3]" />
-                <span className="text-sm font-medium text-white/60">{t("footer.address")}</span>
+                <span className="text-sm font-medium text-white/60">
+                  {i18n.language === 'ar' ? settings.address_ar : settings.address_en}
+                </span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-4 shrink-0 text-[#159DD3]" />
                 <a
-                  href="tel:+967738883371"
+                  href={`tel:+${waNumber}`}
                   dir="ltr"
                   className="text-sm font-medium text-white/60 transition-colors hover:text-white"
                 >
-                  +967 738 883 371
+                  +{waNumber}
                 </a>
               </li>
               <li className="flex items-start gap-3">
@@ -132,10 +138,31 @@ export function SiteFooter() {
 
         {/* Bottom bar */}
         <div className="mt-12 flex flex-col items-center justify-between gap-5 border-t border-white/[0.07] py-8 sm:flex-row">
-          {/* Copyright */}
-          <p className="text-xs font-medium text-white/35">
-            &copy; {new Date().getFullYear()} {t("footer.copyright")}
-          </p>
+          {/* Copyright & Dashboard */}
+          <div className="flex flex-col items-center sm:items-start gap-3">
+            <div className="flex items-center gap-4">
+              <p className="text-xs font-medium text-white/35">
+                &copy; {new Date().getFullYear()} {t("footer.copyright")}
+              </p>
+              <span className="text-white/20">•</span>
+              <a href="/admin/login" className="text-xs font-medium text-white/35 hover:text-[#159DD3] transition-colors">
+                {i18n.language === 'ar' ? 'لوحة التحكم' : 'Dashboard'}
+              </a>
+            </div>
+            
+            <p className="text-[11px] font-medium text-white/35">
+              {i18n.language === 'ar' ? 'تصميم وتطوير: ' : 'Designed & Developed by: '}
+              <a 
+                href="https://wa.me/967714191142" 
+                target="_blank" 
+                rel="noreferrer" 
+                className="text-white/50 hover:text-[#159DD3] transition-colors inline-flex items-center gap-1"
+              >
+                <span>شركة تكينك للخدمات الرقمية</span>
+                <span dir="ltr">(+967 714191142)</span>
+              </a>
+            </p>
+          </div>
 
           {/* Social icons */}
           <div className="flex items-center gap-5">

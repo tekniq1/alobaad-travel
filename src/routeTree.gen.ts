@@ -10,33 +10,155 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AboutRouteImport } from './routes/about'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
+import { Route as AdminDestinationsRouteImport } from './routes/admin.destinations'
+import { Route as AdminFlightsRouteImport } from './routes/admin.flights'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as AdminRequestsRouteImport } from './routes/admin.requests'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminDestinationsDestIdServicesRouteImport } from './routes/admin.destinations_.$destId.services'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutRoute = AboutRouteImport.update({
+  id: '/about',
+  path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDashboardRoute = AdminDashboardRouteImport.update({
+  id: '/admin/dashboard',
+  path: '/admin/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDestinationsRoute = AdminDestinationsRouteImport.update({
+  id: '/admin/destinations',
+  path: '/admin/destinations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminFlightsRoute = AdminFlightsRouteImport.update({
+  id: '/admin/flights',
+  path: '/admin/flights',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRequestsRoute = AdminRequestsRouteImport.update({
+  id: '/admin/requests',
+  path: '/admin/requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/admin/settings',
+  path: '/admin/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminDestinationsDestIdServicesRoute =
+  AdminDestinationsDestIdServicesRouteImport.update({
+    id: '/admin/destinations_/$destId/services',
+    path: '/admin/destinations/$destId/services',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/destinations': typeof AdminDestinationsRoute
+  '/admin/flights': typeof AdminFlightsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/requests': typeof AdminRequestsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/destinations/$destId/services': typeof AdminDestinationsDestIdServicesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/destinations': typeof AdminDestinationsRoute
+  '/admin/flights': typeof AdminFlightsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/requests': typeof AdminRequestsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/destinations/$destId/services': typeof AdminDestinationsDestIdServicesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/about': typeof AboutRoute
+  '/contact': typeof ContactRoute
+  '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/destinations': typeof AdminDestinationsRoute
+  '/admin/flights': typeof AdminFlightsRoute
+  '/admin/login': typeof AdminLoginRoute
+  '/admin/requests': typeof AdminRequestsRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/destinations_/$destId/services': typeof AdminDestinationsDestIdServicesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/admin/dashboard'
+    | '/admin/destinations'
+    | '/admin/flights'
+    | '/admin/login'
+    | '/admin/requests'
+    | '/admin/settings'
+    | '/admin/destinations/$destId/services'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/admin/dashboard'
+    | '/admin/destinations'
+    | '/admin/flights'
+    | '/admin/login'
+    | '/admin/requests'
+    | '/admin/settings'
+    | '/admin/destinations/$destId/services'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/contact'
+    | '/admin/dashboard'
+    | '/admin/destinations'
+    | '/admin/flights'
+    | '/admin/login'
+    | '/admin/requests'
+    | '/admin/settings'
+    | '/admin/destinations_/$destId/services'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AboutRoute: typeof AboutRoute
+  ContactRoute: typeof ContactRoute
+  AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminDestinationsRoute: typeof AdminDestinationsRoute
+  AdminFlightsRoute: typeof AdminFlightsRoute
+  AdminLoginRoute: typeof AdminLoginRoute
+  AdminRequestsRoute: typeof AdminRequestsRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminDestinationsDestIdServicesRoute: typeof AdminDestinationsDestIdServicesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +170,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/about': {
+      id: '/about'
+      path: '/about'
+      fullPath: '/about'
+      preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/dashboard': {
+      id: '/admin/dashboard'
+      path: '/admin/dashboard'
+      fullPath: '/admin/dashboard'
+      preLoaderRoute: typeof AdminDashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/destinations': {
+      id: '/admin/destinations'
+      path: '/admin/destinations'
+      fullPath: '/admin/destinations'
+      preLoaderRoute: typeof AdminDestinationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/flights': {
+      id: '/admin/flights'
+      path: '/admin/flights'
+      fullPath: '/admin/flights'
+      preLoaderRoute: typeof AdminFlightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/requests': {
+      id: '/admin/requests'
+      path: '/admin/requests'
+      fullPath: '/admin/requests'
+      preLoaderRoute: typeof AdminRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/admin/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/destinations_/$destId/services': {
+      id: '/admin/destinations_/$destId/services'
+      path: '/admin/destinations/$destId/services'
+      fullPath: '/admin/destinations/$destId/services'
+      preLoaderRoute: typeof AdminDestinationsDestIdServicesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AboutRoute: AboutRoute,
+  ContactRoute: ContactRoute,
+  AdminDashboardRoute: AdminDashboardRoute,
+  AdminDestinationsRoute: AdminDestinationsRoute,
+  AdminFlightsRoute: AdminFlightsRoute,
+  AdminLoginRoute: AdminLoginRoute,
+  AdminRequestsRoute: AdminRequestsRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminDestinationsDestIdServicesRoute: AdminDestinationsDestIdServicesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
