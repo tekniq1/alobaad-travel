@@ -115,7 +115,7 @@ function AdminSettings() {
                   className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 focus:border-[#5CA8DF] focus:outline-none focus:ring-1 focus:ring-[#5CA8DF]/50 text-start"
                   value={settings.whatsapp_number || ""}
                   onChange={(e) => setSettings({...settings, whatsapp_number: e.target.value})}
-                  placeholder="967738883371"
+                  placeholder="96876652555"
                 />
                 <p className="text-xs text-slate-500">اكتب الرقم بالصيغة الدولية بدون أصفار أو علامة +</p>
               </div>

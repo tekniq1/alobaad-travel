@@ -75,7 +75,7 @@ export function DestinationGrid() {
       } else {
         // Log click
         logWhatsAppClick("destination_service", selected?.id, service.id);
-        window.open(`https://wa.me/967730003371?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+        window.open(`https://wa.me/96876652555?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
       }
     }
   };
@@ -89,13 +89,13 @@ export function DestinationGrid() {
     } else {
       // Log click
       logWhatsAppClick("airport_selection", selected?.id, service.id, { airport_id: airport.id });
-      window.open(`https://wa.me/967730003371?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/96876652555?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
     }
   };
 
   const proceedToWhatsApp = () => {
     logWhatsAppClick("destination_service_with_passport", selected?.id, activeService?.id);
-    window.open(`https://wa.me/967730003371?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/96876652555?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
     closeDestination();
   };
 

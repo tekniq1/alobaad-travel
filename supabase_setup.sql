@@ -12,7 +12,7 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 -- ============================================================
 CREATE TABLE IF NOT EXISTS site_settings (
   id            UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  whatsapp_number TEXT NOT NULL DEFAULT '967738883371',
+  whatsapp_number TEXT NOT NULL DEFAULT '96876652555',
   email_address   TEXT DEFAULT 'info@alobaad.com',
   address_ar      TEXT DEFAULT 'اليمن، إب | عُمان، مسقط',
   address_en      TEXT DEFAULT 'Yemen, Ibb | Oman, Muscat',
@@ -30,7 +30,7 @@ ALTER TABLE site_settings ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP DEFAULT 
 
 -- إدخال الإعدادات الافتراضية إن كان الجدول فارغاً
 INSERT INTO site_settings (whatsapp_number, email_address, address_ar, address_en)
-SELECT '967738883371', 'info@alobaad.com', 'اليمن، إب | عُمان، مسقط', 'Yemen, Ibb | Oman, Muscat'
+SELECT '96876652555', 'info@alobaad.com', 'اليمن، إب | عُمان، مسقط', 'Yemen, Ibb | Oman, Muscat'
 WHERE NOT EXISTS (SELECT 1 FROM site_settings);
 
 

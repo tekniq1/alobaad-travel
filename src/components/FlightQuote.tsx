@@ -43,7 +43,7 @@ export function FlightQuote() {
       });
     });
     
-    window.open(`https://wa.me/967738883371?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/96876652555?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   };
 
   return (

@@ -68,7 +68,7 @@ export function HeroSection() {
                 {t("hero.explore")} <ArrowIcon className={`size-5 ${isRtl ? '' : 'rotate-180'}`} />
               </a>
               <a
-                href={`https://wa.me/967738883371?text=${WA_MSG}`}
+                href={`https://wa.me/96876652555?text=${WA_MSG}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex h-14 items-center justify-center gap-2 rounded-2xl border-2 border-[#0D2742]/10 bg-white text-base font-bold text-[#0D2742] transition-all hover:border-[#0D2742]/20 hover:bg-[#F7FAFC] active:scale-[0.97]"
@@ -122,7 +122,7 @@ export function HeroSection() {
                   {t("hero.explore")} <ArrowIcon className={`size-5 ${isRtl ? '' : 'rotate-180'}`} />
                 </a>
                 <a
-                  href={`https://wa.me/967738883371?text=${WA_MSG}`}
+                  href={`https://wa.me/96876652555?text=${WA_MSG}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex h-14 items-center gap-2.5 rounded-2xl border-2 border-[#0D2742]/10 bg-white/80 px-7 text-base font-bold text-[#0D2742] backdrop-blur-sm transition-all hover:bg-white active:scale-[0.97]"

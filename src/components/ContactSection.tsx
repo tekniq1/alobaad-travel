@@ -80,7 +80,7 @@ export function ContactSection() {
               transition={{ duration: 0.4, delay: 0.3 }}
             >
               <Button asChild size="lg" className="w-full rounded-2xl bg-[#25D366] hover:bg-[#20b858] text-white">
-                <a href="https://wa.me/967738883371" target="_blank" rel="noreferrer">
+                <a href="https://wa.me/96876652555" target="_blank" rel="noreferrer">
                   <MessageCircle className="mr-2 size-5" />
                   {t("contact.whatsapp_btn")}
                 </a>

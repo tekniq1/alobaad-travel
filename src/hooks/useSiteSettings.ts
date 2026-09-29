@@ -13,8 +13,8 @@ interface SiteSettings {
 
 const defaultSettings: SiteSettings = {
   id: "",
-  whatsapp_number: "967738883371",
-  email_address: "info@alobaad.com",
+  whatsapp_number: "96876652555",
+  email_address: "alobadtravel@gmail.com",
   address_ar: "اليمن، إب | عُمان، مسقط",
   address_en: "Yemen, Ibb | Oman, Muscat",
   facebook_url: "",

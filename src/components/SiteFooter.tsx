@@ -1,4 +1,4 @@
-import { Send, MapPin, Phone, Clock3, Facebook, Instagram, Twitter } from "lucide-react";
+import { Send, MapPin, Phone, Clock3, Facebook, Instagram, Twitter, Mail } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import logoAsset from "../assets/alobaad-logo.jpg.asset.json";
 import { useSiteSettings } from "../hooks/useSiteSettings";
@@ -16,7 +16,7 @@ export function SiteFooter() {
   const isRtl = i18n.dir() === "rtl";
   const { settings } = useSiteSettings();
 
-  const waNumber = settings.whatsapp_number || "967738883371";
+  const waNumber = settings.whatsapp_number || "96876652555";
   const WA_MESSAGE = encodeURIComponent(t("hero.wa_msg"));
 
 
@@ -119,13 +119,23 @@ export function SiteFooter() {
                 </span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="size-4 shrink-0 text-[#159DD3]" />
+                <WhatsAppIcon className="size-4 shrink-0 text-[#159DD3]" />
                 <a
-                  href={`tel:+${waNumber}`}
+                  href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer"
                   dir="ltr"
-                  className="text-sm font-medium text-white/60 transition-colors hover:text-white"
+                  className="text-sm font-medium text-white/60 transition-colors hover:text-[#159DD3]"
                 >
-                  +{waNumber}
+                  +968 76652555
+                </a>
+              </li>
+              <li className="flex items-center gap-3">
+                <Mail className="size-4 shrink-0 text-[#159DD3]" />
+                <a
+                  href="mailto:alobadtravel@gmail.com"
+                  dir="ltr"
+                  className="text-sm font-medium text-white/60 transition-colors hover:text-[#159DD3]"
+                >
+                  alobadtravel@gmail.com
                 </a>
               </li>
               <li className="flex items-start gap-3">

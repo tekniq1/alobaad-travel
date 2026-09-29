@@ -6,7 +6,7 @@ import { useSiteSettings } from "../hooks/useSiteSettings";
 export function FloatingWhatsApp() {
   const { t } = useTranslation();
   const { settings } = useSiteSettings();
-  const waNumber = settings.whatsapp_number || "967738883371";
+  const waNumber = settings.whatsapp_number || "96876652555";
   const waMessage = encodeURIComponent(t("hero.wa_msg"));
 
   return (

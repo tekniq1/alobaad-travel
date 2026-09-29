@@ -77,7 +77,7 @@ export function FinalCTA() {
                 className="mt-8 flex flex-col gap-3"
               >
                 <a
-                  href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
+                  href={`https://wa.me/96876652555?text=${WA_MESSAGE}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => {
@@ -133,7 +133,7 @@ export function FinalCTA() {
 
             <div className="mt-10 flex flex-col gap-4 sm:flex-row">
               <a
-                href={`https://wa.me/967738883371?text=${WA_MESSAGE}`}
+                href={`https://wa.me/96876652555?text=${WA_MESSAGE}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => {
