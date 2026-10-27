@@ -55,7 +55,15 @@ export function SiteFooter() {
           <div className="col-span-2 lg:col-span-1">
             <a href="#home" className="flex items-center gap-3">
               <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-full bg-[#0D2742] shadow-sm border border-white/10">
-                <img src="/logo-new.png" alt={t("hero.brand")} className="h-full w-full object-cover scale-110" />
+                <img 
+                  src="/logo-new.png" 
+                  alt={t("hero.brand")} 
+                  width="56"
+                  height="56"
+                  loading="lazy"
+                  decoding="async"
+                  className="h-full w-full object-cover scale-110" 
+                />
               </span>
               <span>
                 <strong className="block text-base font-bold text-white">{t("meta.rootTitle").split(" ")[0]}</strong>

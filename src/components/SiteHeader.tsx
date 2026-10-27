@@ -20,6 +20,10 @@ function BrandLogo() {
       <img 
         src="/logo-high-res.png" 
         alt={t("meta.rootTitle")}
+        width="160"
+        height="64"
+        fetchPriority="high"
+        decoding="async"
         className="h-14 sm:h-16 lg:h-20 w-auto object-contain drop-shadow-md py-1"
       />
     </Link>

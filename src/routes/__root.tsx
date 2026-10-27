@@ -82,32 +82,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   errorComponent: ErrorComponent,
 });
 
-import { useState } from "react";
-import { IntroSplash } from "../components/IntroSplash";
-import { AnimatePresence } from "motion/react";
 import { SiteHeader } from "../components/SiteHeader";
 import { SiteFooter } from "../components/SiteFooter";
 import { FloatingWhatsApp } from "../components/FloatingWhatsApp";
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const [showIntro, setShowIntro] = useState(true);
-
-  // Fallback to clear intro just in case
-  useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
-
   const router = useRouter();
   const isAdmin = router.state.location.pathname.startsWith('/admin');
 
   return (
     <I18nextProvider i18n={i18n}>
       <QueryClientProvider client={queryClient}>
-        <AnimatePresence>
-          {showIntro && <IntroSplash onComplete={() => setShowIntro(false)} />}
-        </AnimatePresence>
         {!isAdmin && <SiteHeader />}
         <div className={!isAdmin ? "pt-20 lg:pt-24 min-h-screen" : "min-h-screen"}>
           <Outlet />

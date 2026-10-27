@@ -1,12 +1,6 @@
 import { motion } from "motion/react";
 import { ArrowLeft, Send } from "lucide-react";
-import { lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
-
-// Lazy-load the 3D scene so Three.js is never imported on the SSR server
-const TravelScene3D = lazy(() =>
-  import("./TravelScene3D").then((m) => ({ default: m.TravelScene3D }))
-);
 
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
@@ -91,6 +85,10 @@ export function HeroSection() {
               <img 
                 src="/main-hero.jpg" 
                 alt={t("hero.brand")} 
+                fetchPriority="high"
+                decoding="async"
+                width="448"
+                height="360"
                 className="w-full h-[360px] object-cover"
               />
             </div>
@@ -154,6 +152,10 @@ export function HeroSection() {
                 <img 
                   src="/main-hero.jpg" 
                   alt={t("hero.brand")} 
+                  fetchPriority="high"
+                  decoding="async"
+                  width="500"
+                  height="520"
                   className="w-full h-[520px] object-cover transition-transform duration-700 hover:scale-105"
                 />
               </motion.div>

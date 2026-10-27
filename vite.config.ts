@@ -15,9 +15,11 @@ export default defineConfig({
     react(),
   ],
   resolve: {
-    dedupe: ["react", "react-dom", "three"],
+    dedupe: ["react", "react-dom"],
   },
-  optimizeDeps: {
-    include: ["three", "@react-three/fiber", "@react-three/drei"],
+  build: {
+    target: "esnext",
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
   },
 });

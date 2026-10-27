@@ -168,6 +168,8 @@ export function ContactSection() {
               <img 
                 src="/premium-travel-hero.jpg" 
                 alt="Luxury Travel" 
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </div>
