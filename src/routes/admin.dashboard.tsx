@@ -11,7 +11,9 @@ import {
   ShieldCheck, 
   ArrowLeft,
   Clock,
-  ExternalLink
+  ExternalLink,
+  User,
+  Phone
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../lib/supabase";
@@ -111,6 +113,31 @@ export function AdminDashboard() {
     if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
     if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
     return `منذ ${Math.floor(diff / 86400)} يوم`;
+  }
+
+  function getCustomerInfo(req: any) {
+    const phoneRaw = (req.phone || '').trim();
+    const cleanPhone = phoneRaw.replace(/\D/g, '');
+    const ticketClean = ticketsNum.replace(/\D/g, '');
+    const visaClean = visasNum.replace(/\D/g, '');
+
+    const isDirectOrEmp = !phoneRaw || 
+      phoneRaw.includes('مباشر') || 
+      cleanPhone === ticketClean || 
+      cleanPhone === visaClean;
+
+    let custName = (req.name || '').trim();
+    if (!custName || custName.startsWith('مسؤول') || custName.includes('المستلم:')) {
+      custName = custName.includes('(') ? custName.split('(')[0].trim() : '';
+    }
+    if (!custName) {
+      custName = getDepartment(req) === 'tickets' ? 'عميل حجز طيران' : 'عميل تأشيرات وموافقات';
+    }
+
+    return {
+      name: custName,
+      phone: isDirectOrEmp ? null : phoneRaw,
+    };
   }
 
   function statusBadge(status: string) {
@@ -245,6 +272,7 @@ export function AdminDashboard() {
               <table className="w-full text-right text-sm">
                 <thead className="bg-slate-50 text-slate-500 text-xs font-bold uppercase">
                   <tr>
+                    <th className="py-3 px-5">العميل والهاتف</th>
                     <th className="py-3 px-5">القسم والموظف</th>
                     <th className="py-3 px-5">الخدمة</th>
                     <th className="py-3 px-5">الوقت</th>
@@ -256,11 +284,22 @@ export function AdminDashboard() {
                     const dept = getDepartment(req);
                     const isTickets = dept === 'tickets';
                     const empName = isTickets ? ticketsName : visasName;
+                    const cust = getCustomerInfo(req);
 
                     return (
                       <tr key={req.id} className="hover:bg-slate-50 transition-colors">
+                        <td className="py-3 px-5">
+                          <p className="font-bold text-xs text-slate-900">{cust.name}</p>
+                          {cust.phone ? (
+                            <span className="font-mono text-[11px] font-bold text-emerald-700 dir-ltr inline-block" dir="ltr">
+                              {cust.phone}
+                            </span>
+                          ) : (
+                            <span className="text-[10px] text-slate-400">تحويل مباشر</span>
+                          )}
+                        </td>
                         <td className="py-3.5 px-5">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5">
                             <span className={`inline-flex size-6 shrink-0 items-center justify-center rounded-md text-white text-[10px] ${isTickets ? 'bg-[#0F2A48]' : 'bg-emerald-600'}`}>
                               {isTickets ? '✈️' : '📄'}
                             </span>

@@ -91,25 +91,47 @@ export async function recordWhatsAppRequest({
     const defaultEmployee = department === 'tickets' ? 'مسؤول التذاكر' : 'مسؤول التأشيرات والموافقات';
     const finalEmployee = employeeName || defaultEmployee;
 
-    let fullMessage = message || '';
+    const finalCustomerName = customerName?.trim() || (department === 'tickets' ? 'عميل حجز طيران' : 'عميل تأشيرات وموافقات');
+    const finalCustomerPhone = customerPhone?.trim() || '';
+
+    // Build structured full message containing customer and transaction specs
+    let fullMessage = '';
+
+    // Section 1: Customer Contact
+    fullMessage += `[بيانات العميل المتواصل]:\n`;
+    fullMessage += `• اسم العميل: ${finalCustomerName}\n`;
+    fullMessage += `• رقم هاتف العميل: ${finalCustomerPhone || 'تحويل مباشر عبر الواتساب'}\n\n`;
+
+    // Section 2: Assigned Staff
+    fullMessage += `[الموظف المسؤول]:\n`;
+    fullMessage += `• الموظف المستلم: ${finalEmployee}\n`;
+    fullMessage += `• رقم الموظف: +${assignedPhone}\n`;
+    fullMessage += `• القسم: ${department === 'tickets' ? 'تذاكر طيران' : 'تأشيرات وموافقات'}\n\n`;
+
+    // Section 3: Extra Details
     if (details && Object.keys(details).length > 0) {
       const detailsText = Object.entries(details)
         .filter(([_, v]) => v !== undefined && v !== null && v !== '')
         .map(([k, v]) => `• ${k}: ${v}`)
         .join('\n');
       if (detailsText) {
-        fullMessage += (fullMessage ? '\n\n' : '') + `[تفاصيل إضافية]:\n` + detailsText;
+        fullMessage += `[تفاصيل المعاملة]:\n${detailsText}\n\n`;
       }
+    }
+
+    // Section 4: WhatsApp Message
+    if (message) {
+      fullMessage += `[نص رسالة الواتساب]:\n${message}`;
     }
 
     const { data, error } = await supabase.from('contact_requests').insert([
       {
         type: department,
-        name: customerName ? `${customerName} (المستلم: ${finalEmployee})` : finalEmployee,
-        phone: customerPhone || assignedPhone,
+        name: finalCustomerName,
+        phone: finalCustomerPhone || `مباشر (+${assignedPhone})`,
         destination: destination || (department === 'tickets' ? 'طيران عام' : 'تأشيرات عامة'),
         service: service || (department === 'tickets' ? 'طلب استفسار تذاكر طيران' : 'طلب استفسار تأشيرات وموافقات'),
-        message: fullMessage,
+        message: fullMessage.trim(),
         status: 'new',
       }
     ]).select();

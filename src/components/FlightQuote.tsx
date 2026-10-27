@@ -1,4 +1,4 @@
-import { ArrowDownUp, Info, Minus, PlaneTakeoff, Plus } from "lucide-react";
+import { ArrowDownUp, Info, Minus, PlaneTakeoff, Plus, User, Phone } from "lucide-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
@@ -15,6 +15,8 @@ export function FlightQuote() {
   const [date, setDate] = useState("");
   const [returnDate, setReturnDate] = useState("");
   const [travelers, setTravelers] = useState(1);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
   
   const isRtl = i18n.dir() === "rtl";
 
@@ -38,6 +40,12 @@ export function FlightQuote() {
     }
     
     message += `${t("flight.wa_msg_6")}${travelers}`;
+
+    if (customerName.trim() || customerPhone.trim()) {
+      message += `\n\n[بيانات المسافر للتواصل]:`;
+      if (customerName.trim()) message += `\n👤 الاسم: ${customerName.trim()}`;
+      if (customerPhone.trim()) message += `\n📱 هاتف/واتساب: ${customerPhone.trim()}`;
+    }
     
     const ticketNumber = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
     const employeeName = settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران";
@@ -48,19 +56,23 @@ export function FlightQuote() {
         department: "tickets",
         phone: ticketNumber,
         employeeName: employeeName,
+        customerName: customerName.trim() || "عميل حجز طيران",
+        customerPhone: customerPhone.trim() || "",
         destination: `${from || "غير محدد"} ➔ ${to || "غير محدد"}`,
-        service: `حجز طيران (${tripTypeString} - ${travelers} مسافر)`,
+        service: `حجز تذكرة طيران (${tripTypeString} - ${travelers} مسافر)`,
         message,
         details: {
+          "اسم العميل": customerName.trim() || "غير مسجل",
+          "هاتف العميل": customerPhone.trim() || "تواصل مباشر",
           "خط السير": `${from || "غير محدد"} ➔ ${to || "غير محدد"}`,
           "نوع الرحلة": tripTypeString,
           "تاريخ الذهاب": date || "غير محدد",
-          "تاريخ العودة": tripType === "round" ? (returnDate || "غير محدد") : "ذهاب فقط",
+          "تاريخ العودة": tripType === "round" ? (returnDate || "ذهاب فقط") : "ذهاب فقط",
           "عدد المسافرين": `${travelers} مسافر`
         }
       });
       logWhatsAppClick("flight_quote_form", undefined, undefined, {
-        from, to, tripType, date, returnDate, travelers
+        from, to, tripType, date, returnDate, travelers, customerName, customerPhone
       });
     });
     
@@ -207,7 +219,7 @@ export function FlightQuote() {
               </div>
 
               {/* 4. Passengers */}
-              <div className="mb-8 flex h-16 items-center justify-between rounded-xl border border-border bg-card px-5">
+              <div className="mb-5 flex h-16 items-center justify-between rounded-xl border border-border bg-card px-5">
                 <span className="text-sm font-bold text-foreground">{t("flight.passengers")}</span>
                 <div className="flex items-center gap-4">
                   <button
@@ -225,6 +237,39 @@ export function FlightQuote() {
                   >
                     <Plus className="size-4" />
                   </button>
+                </div>
+              </div>
+
+              {/* 5. Passenger Contact Details */}
+              <div className="mb-6 rounded-2xl border border-sky-100 bg-sky-50/50 p-4 space-y-3 dark:border-slate-800 dark:bg-slate-900/50">
+                <div className="flex items-center gap-2 text-xs font-bold text-[#0D2742] dark:text-sky-300">
+                  <User className="size-4 text-primary" />
+                  <span>بيانات المسافر للتواصل وتأكيد الحجز</span>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 focus-within:border-primary focus-within:ring-1">
+                    <User className="size-4 text-muted-foreground shrink-0" />
+                    <input
+                      type="text"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="الاسم الكريم (اختياري)"
+                      className="w-full bg-transparent text-xs sm:text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
+                    />
+                  </div>
+
+                  <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 focus-within:border-primary focus-within:ring-1">
+                    <Phone className="size-4 text-emerald-600 shrink-0" />
+                    <input
+                      type="tel"
+                      value={customerPhone}
+                      onChange={(e) => setCustomerPhone(e.target.value)}
+                      placeholder="رقم الواتساب للتواصل (مثال: 77XXXXXXX)"
+                      className="w-full bg-transparent text-xs sm:text-sm font-bold text-foreground outline-none placeholder:text-muted-foreground/60 dir-ltr text-right focus:text-left"
+                      dir="ltr"
+                    />
+                  </div>
                 </div>
               </div>
 

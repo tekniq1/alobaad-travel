@@ -3,22 +3,20 @@ import { AdminLayout } from "../components/admin/AdminLayout";
 import { 
   MessageCircle, 
   RefreshCw, 
-  CheckCheck, 
   Eye, 
   Plane, 
   ShieldCheck, 
-  Download, 
   Printer, 
   Search, 
-  Calendar, 
   Clock, 
   User, 
   Phone, 
   X,
-  ExternalLink,
-  ChevronDown,
   Trash2,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Copy,
+  Check,
+  PhoneCall
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "../lib/supabase";
@@ -42,6 +40,7 @@ export function AdminRequests() {
   // Details Modal
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [copiedText, setCopiedText] = useState(false);
 
   const ticketsName = settings.whatsapp_tickets_name || "مسؤول التذاكر";
   const ticketsNum = settings.whatsapp_tickets || "96876652555";
@@ -106,10 +105,66 @@ export function AdminRequests() {
     const phone = (req.phone || '').replace(/\D/g, '');
     const service = (req.service || '').toLowerCase();
 
-    if (type === 'tickets' || type === 'flight_quote' || phone.includes('968') || service.includes('طيران') || service.includes('تذكر')) {
+    if (type === 'tickets' || type === 'flight_quote' || phone.includes('968') || service.includes('طيران') || service.includes('تذكر') || service.includes('مطار')) {
       return 'tickets';
     }
     return 'visas';
+  }
+
+  // Parse Customer Info
+  function getCustomerInfo(req: any) {
+    const phoneRaw = (req.phone || '').trim();
+    const cleanPhone = phoneRaw.replace(/\D/g, '');
+    const ticketClean = ticketsNum.replace(/\D/g, '');
+    const visaClean = visasNum.replace(/\D/g, '');
+
+    const isDirectOrEmp = !phoneRaw || 
+      phoneRaw.includes('مباشر') || 
+      cleanPhone === ticketClean || 
+      cleanPhone === visaClean;
+
+    // Determine clean customer name
+    let custName = (req.name || '').trim();
+    if (!custName || custName.startsWith('مسؤول') || custName.includes('المستلم:')) {
+      custName = custName.includes('(') ? custName.split('(')[0].trim() : '';
+    }
+    if (!custName) {
+      custName = getDepartment(req) === 'tickets' ? 'عميل حجز طيران' : 'عميل تأشيرات وموافقات';
+    }
+
+    return {
+      name: custName,
+      phone: isDirectOrEmp ? null : phoneRaw,
+      isDirect: isDirectOrEmp,
+    };
+  }
+
+  // Parse structured details from message
+  function parseRequestDetails(req: any) {
+    const details: Record<string, string> = {};
+    if (!req.message) return details;
+
+    const lines = req.message.split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
+        const clean = trimmed.replace(/^[•-]\s*/, '');
+        const parts = clean.split(':');
+        if (parts.length >= 2) {
+          const key = parts[0].trim();
+          const value = parts.slice(1).join(':').trim();
+          if (key && value && !key.includes('نص رسالة')) details[key] = value;
+        }
+      } else if (trimmed.includes(':') && !trimmed.startsWith('http') && !trimmed.startsWith('[') && !trimmed.startsWith('السلام')) {
+        const parts = trimmed.split(':');
+        if (parts.length >= 2) {
+          const key = parts[0].replace(/^[^\w\u0600-\u06FF]+/, '').trim();
+          const value = parts.slice(1).join(':').trim();
+          if (key && value && key.length < 30) details[key] = value;
+        }
+      }
+    }
+    return details;
   }
 
   // Filter calculations
@@ -205,25 +260,40 @@ export function AdminRequests() {
     };
   }, [requests]);
 
-  // Export to Excel / CSV
+  // Export to Excel / CSV with Customer Info
   function exportCSV() {
     if (filteredRequests.length === 0) {
       alert("لا توجد طلبات لتصديرها");
       return;
     }
 
-    const headers = ["الرقم التعريفي", "القسم", "الموظف المسند إليه", "الرقم المحول", "الخدمة / المعاملة", "الوجهة / المسار", "الحالة", "تاريخ ووقت الطلب", "نص الرسالة"];
+    const headers = [
+      "الرقم التعريفي", 
+      "اسم العميل", 
+      "رقم هاتف العميل", 
+      "القسم", 
+      "الموظف المسند إليه", 
+      "رقم الموظف", 
+      "الخدمة / المعاملة", 
+      "الوجهة / المسار", 
+      "الحالة", 
+      "تاريخ ووقت الطلب", 
+      "نص الرسالة"
+    ];
     
     const rows = filteredRequests.map(r => {
       const dept = getDepartment(r);
+      const cust = getCustomerInfo(r);
       const deptName = dept === 'tickets' ? 'قسم التذاكر' : 'قسم التأشيرات والموافقات';
       const emp = dept === 'tickets' ? ticketsName : visasName;
       const ph = dept === 'tickets' ? ticketsNum : visasNum;
-      const statusText = r.status === 'new' ? 'جديد' : (r.status === 'in_progress' ? 'قيد المتابعة' : (r.status === 'replied' ? 'تم الرد' : 'ملغي'));
+      const statusText = r.status === 'new' ? 'جديد' : (r.status === 'in_progress' ? 'قيد المتابعة' : (r.status === 'replied' ? 'تم الإنجاز' : 'ملغي'));
       const dateText = r.created_at ? new Date(r.created_at).toLocaleString('ar-YE') : '';
 
       return [
         r.id || '',
+        `"${cust.name.replace(/"/g, '""')}"`,
+        `"${(cust.phone || 'تحويل مباشر').replace(/"/g, '""')}"`,
         deptName,
         emp,
         ph,
@@ -265,12 +335,18 @@ export function AdminRequests() {
     }
   }
 
+  function copyMessage(text: string) {
+    navigator.clipboard.writeText(text);
+    setCopiedText(true);
+    setTimeout(() => setCopiedText(false), 2000);
+  }
+
   return (
-    <AdminLayout title="إشراف وتتبع طلبات الواتساب">
+    <AdminLayout title="مركز الرقابة وتتبع طلبات الواتساب">
       {/* Print-only Header */}
       <div className="hidden print:block mb-6 text-center border-b pb-4">
         <h1 className="text-2xl font-bold">وكالة العباد للسفريات والسياحة</h1>
-        <p className="text-sm text-slate-600">تقرير رقابة وتتبع طلبات الواتساب والموظفين</p>
+        <p className="text-sm text-slate-600">تقرير رقابة وتتبع طلبات الواتساب وهواتف العملاء</p>
         <p className="text-xs text-slate-500 mt-1">تاريخ استخراج التقرير: {new Date().toLocaleString('ar-YE')}</p>
       </div>
 
@@ -279,7 +355,7 @@ export function AdminRequests() {
         <div>
           <h2 className="text-xl font-bold text-slate-800">مركز الرقابة والمتابعة</h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            تتبع طلبات العملاء المحولة للواتساب لكل موظف ورقم مستقل.
+            تتبع أرقام هواتف العملاء وتفاصيل طلباتهم (تذاكر، تأشيرات، موافقات أمنية) لكل موظف.
           </p>
         </div>
 
@@ -399,71 +475,79 @@ export function AdminRequests() {
               />
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-xs font-medium">
-              <span className="flex items-center gap-1.5 text-slate-700">
-                <span className="size-2.5 rounded-full bg-[#0F2A48]" />
-                التذاكر: {stats.ticketsPct}% ({stats.ticketsTotal})
+            <div className="mt-2.5 flex justify-between text-xs font-semibold">
+              <span className="text-[#0F2A48] flex items-center gap-1">
+                <span className="inline-block size-2 rounded-full bg-[#0F2A48]" />
+                التذاكر ({stats.ticketsPct}%)
               </span>
-              <span className="flex items-center gap-1.5 text-slate-700">
-                <span className="size-2.5 rounded-full bg-emerald-500" />
-                التأشيرات: {stats.visasPct}% ({stats.visasTotal})
+              <span className="text-emerald-700 flex items-center gap-1">
+                <span className="inline-block size-2 rounded-full bg-emerald-500" />
+                التأشيرات والموافقات ({stats.visasPct}%)
               </span>
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>كل طلب يمثل عميلاً تم تحويله للواتساب مباشرة.</span>
+          <div className="mt-4 border-t border-slate-100 pt-3 text-xs text-slate-500 flex items-center justify-between">
+            <span>الفلاتر النشطة:</span>
+            <span className="font-bold text-slate-700">
+              {filteredRequests.length} من {requests.length} طلب
+            </span>
           </div>
         </div>
 
       </div>
 
-      {/* Filter Tabs & Search Bar */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm mb-6 print:hidden">
-        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+      {/* Filter and Search Bar */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 mb-6 shadow-sm print:hidden">
+        <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
           
           {/* Department Tabs */}
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl">
             <button
               onClick={() => setDepartmentFilter('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${departmentFilter === 'all' ? 'bg-slate-900 text-white shadow-sm' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+              className={`rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                departmentFilter === 'all' ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
-              الكل ({requests.length})
+              جميع الأقسام ({requests.length})
             </button>
-
             <button
               onClick={() => setDepartmentFilter('tickets')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${departmentFilter === 'tickets' ? 'bg-[#0F2A48] text-white shadow-sm' : 'bg-sky-50 text-sky-800 hover:bg-sky-100'}`}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                departmentFilter === 'tickets' ? 'bg-[#0F2A48] text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
               <Plane className="size-3.5" />
-              تذاكر [{ticketsName}] ({stats.ticketsTotal})
+              تذاكر الطيران ({stats.ticketsTotal})
             </button>
-
             <button
               onClick={() => setDepartmentFilter('visas')}
-              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all ${departmentFilter === 'visas' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100'}`}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-bold transition-all ${
+                departmentFilter === 'visas' ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'
+              }`}
             >
               <ShieldCheck className="size-3.5" />
-              تأشيرات [{visasName}] ({stats.visasTotal})
+              التأشيرات والموافقات ({stats.visasTotal})
             </button>
           </div>
 
-          {/* Sub Filters: Date & Search */}
-          <div className="flex flex-wrap items-center gap-2.5">
-            {/* Status dropdown */}
+          {/* Status, Date, & Search Inputs */}
+          <div className="flex flex-wrap items-center gap-2">
+            
+            {/* Status Filter */}
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
               className="h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-xs sm:text-sm font-medium text-slate-700 focus:outline-none focus:border-primary"
             >
-              <option value="all">كل الحالات</option>
-              <option value="new">🟡 جديد</option>
-              <option value="in_progress">🔵 قيد المتابعة</option>
-              <option value="replied">🟢 تم الإنجاز</option>
-              <option value="cancelled">🔴 ملغي</option>
+              <option value="all">جميع الحالات</option>
+              <option value="new">جديد (بانتظار الرد)</option>
+              <option value="in_progress">قيد المتابعة</option>
+              <option value="replied">تم الإنجاز</option>
+              <option value="cancelled">ملغي</option>
             </select>
 
-            {/* Date filter dropdown */}
+            {/* Date Filter */}
             <select
               value={dateFilter}
               onChange={(e) => setDateFilter(e.target.value as any)}
@@ -476,11 +560,11 @@ export function AdminRequests() {
             </select>
 
             {/* Search Input */}
-            <div className="relative flex-1 sm:w-60">
+            <div className="relative flex-1 sm:w-64">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" />
               <input
                 type="text"
-                placeholder="بحث بالوجهة، الخدمة..."
+                placeholder="بحث برقم هاتف العميل، الاسم، الوجهة..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-10 w-full rounded-xl border border-slate-200 bg-slate-50 pr-9 pl-3 text-xs sm:text-sm text-slate-800 focus:outline-none focus:border-primary"
@@ -511,7 +595,7 @@ export function AdminRequests() {
             </div>
             <h3 className="text-base font-bold text-slate-800">لا توجد طلبات مطابقة</h3>
             <p className="text-sm text-slate-500 mt-1 max-w-sm">
-              لم يتم العثور على طلبات بحسب الفلاتر المحددة حالياً. ستظهر الطلبات تلقائياً فور تحويل العميل للواتساب.
+              لم يتم العثور على طلبات بحسب الفلاتر المحددة حالياً. ستظهر الطلبات تلقائياً مع أرقام هواتف وتفاصيل العملاء فور طلبهم.
             </p>
           </div>
         ) : (
@@ -519,9 +603,10 @@ export function AdminRequests() {
             <table className="w-full text-right text-sm">
               <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-bold uppercase tracking-wider">
                 <tr>
-                  <th className="py-3.5 px-5">القسم والموظف</th>
-                  <th className="py-3.5 px-5">الخدمة / المعاملة</th>
+                  <th className="py-3.5 px-5">بيانات العميل (الهاتف والاسم)</th>
+                  <th className="py-3.5 px-5">الخدمة والتفاصيل</th>
                   <th className="py-3.5 px-5">الوجهة أو المسار</th>
+                  <th className="py-3.5 px-5">القسم والموظف</th>
                   <th className="py-3.5 px-5">التاريخ والوقت</th>
                   <th className="py-3.5 px-5 text-center">الحالة</th>
                   <th className="py-3.5 px-5 text-center print:hidden">الإجراءات</th>
@@ -531,48 +616,111 @@ export function AdminRequests() {
                 {filteredRequests.map(req => {
                   const dept = getDepartment(req);
                   const isTickets = dept === 'tickets';
+                  const cust = getCustomerInfo(req);
                   const assignedName = isTickets ? ticketsName : visasName;
                   const assignedPhone = isTickets ? ticketsNum : visasNum;
+                  const parsed = parseRequestDetails(req);
 
                   return (
                     <tr 
                       key={req.id} 
                       className={`hover:bg-slate-50/80 transition-colors ${req.status === 'new' ? 'bg-amber-50/30' : ''}`}
                     >
-                      {/* Department & Officer */}
+                      {/* Customer Name & Phone */}
                       <td className="py-4 px-5">
-                        <div className="flex items-center gap-2.5">
-                          <div className={`flex size-8 shrink-0 items-center justify-center rounded-lg text-white shadow-sm ${isTickets ? 'bg-[#0F2A48]' : 'bg-emerald-600'}`}>
-                            {isTickets ? <Plane className="size-4" /> : <ShieldCheck className="size-4" />}
+                        <div className="flex items-start gap-2.5">
+                          <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-700 mt-0.5">
+                            <User className="size-4 text-slate-600" />
                           </div>
                           <div>
-                            <span className={`inline-block text-[11px] font-bold px-1.5 py-0.5 rounded ${isTickets ? 'bg-sky-100 text-sky-900' : 'bg-emerald-100 text-emerald-900'}`}>
-                              {isTickets ? 'تذاكر طيران' : 'تأشيرات وموافقات'}
-                            </span>
-                            <p className="text-xs font-semibold text-slate-800 mt-0.5">
-                              {assignedName}
+                            <p className="font-bold text-slate-900 text-xs sm:text-sm">
+                              {cust.name}
                             </p>
+                            
+                            {cust.phone ? (
+                              <div className="flex items-center gap-1.5 mt-1">
+                                <span className="font-mono text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-md dir-ltr" dir="ltr">
+                                  {cust.phone}
+                                </span>
+                                <a
+                                  href={`https://wa.me/${cust.phone.replace(/\D/g, '')}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  title="محادثة العميل واتساب"
+                                  className="text-emerald-600 hover:text-emerald-700 p-1 hover:bg-emerald-50 rounded"
+                                >
+                                  <MessageCircle className="size-3.5" />
+                                </a>
+                                <a
+                                  href={`tel:${cust.phone}`}
+                                  title="اتصال هاتفي بالعميل"
+                                  className="text-slate-500 hover:text-slate-800 p-1 hover:bg-slate-100 rounded"
+                                >
+                                  <PhoneCall className="size-3.5" />
+                                </a>
+                              </div>
+                            ) : (
+                              <span className="inline-block text-[10px] font-semibold text-slate-400 bg-slate-100 px-2 py-0.5 rounded mt-1">
+                                تحويل مباشر (لم يُدخل هاتفه)
+                              </span>
+                            )}
                           </div>
                         </div>
                       </td>
 
-                      {/* Service / Subject */}
+                      {/* Service / Subject & Key Details */}
                       <td className="py-4 px-5">
-                        <p className="font-semibold text-slate-900 line-clamp-1">
+                        <p className="font-bold text-slate-900 line-clamp-1">
                           {req.service || (isTickets ? 'طلب حجز طيران' : 'طلب تأشيرة/موافقة')}
                         </p>
-                        {req.message && (
-                          <p className="text-xs text-slate-500 line-clamp-1 mt-0.5 font-mono">
-                            {req.message.slice(0, 75)}...
-                          </p>
-                        )}
+                        
+                        {/* Extracted Details Pills */}
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                          {parsed['نوع الرحلة'] && (
+                            <span className="text-[10px] font-bold text-sky-800 bg-sky-50 border border-sky-200/60 px-1.5 py-0.5 rounded">
+                              {parsed['نوع الرحلة']}
+                            </span>
+                          )}
+                          {parsed['عدد المسافرين'] && (
+                            <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                              {parsed['عدد المسافرين']}
+                            </span>
+                          )}
+                          {parsed['تاريخ الذهاب'] && (
+                            <span className="text-[10px] font-mono text-slate-600 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200">
+                              📅 {parsed['تاريخ الذهاب']}
+                            </span>
+                          )}
+                          {parsed['حالة الجواز'] && (
+                            <span className="text-[10px] font-bold text-emerald-800 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                              🛂 جواز السفر
+                            </span>
+                          )}
+                        </div>
                       </td>
 
                       {/* Destination / Route */}
                       <td className="py-4 px-5">
-                        <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-700 bg-slate-100 px-2.5 py-1 rounded-lg">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-slate-800 bg-slate-100 px-2.5 py-1 rounded-lg">
                           {req.destination || 'عام'}
                         </span>
+                      </td>
+
+                      {/* Department & Officer */}
+                      <td className="py-4 px-5">
+                        <div className="flex items-center gap-2">
+                          <div className={`flex size-7 shrink-0 items-center justify-center rounded-lg text-white shadow-sm ${isTickets ? 'bg-[#0F2A48]' : 'bg-emerald-600'}`}>
+                            {isTickets ? <Plane className="size-3.5" /> : <ShieldCheck className="size-3.5" />}
+                          </div>
+                          <div>
+                            <span className={`inline-block text-[10px] font-bold px-1.5 py-0.5 rounded ${isTickets ? 'bg-sky-100 text-sky-900' : 'bg-emerald-100 text-emerald-900'}`}>
+                              {isTickets ? 'تذاكر طيران' : 'تأشيرات وموافقات'}
+                            </span>
+                            <p className="text-xs font-semibold text-slate-700 mt-0.5">
+                              {assignedName}
+                            </p>
+                          </div>
+                        </div>
                       </td>
 
                       {/* Time */}
@@ -612,22 +760,34 @@ export function AdminRequests() {
                           {/* View details */}
                           <button
                             onClick={() => setSelectedRequest(req)}
-                            title="عرض التفاصيل كاملة"
-                            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                            title="عرض جميع التفاصيل"
+                            className="p-1.5 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                           >
                             <Eye className="size-4" />
                           </button>
 
-                          {/* Quick WhatsApp Link to Assigned Number */}
-                          <a
-                            href={`https://wa.me/${assignedPhone}?text=${encodeURIComponent(`بخصوص الطلب رقم: ${req.id ? req.id.slice(0, 8) : ''} - ${req.service || ''}`)}`}
-                            target="_blank"
-                            rel="noreferrer"
-                            title={`محادثة مع ${assignedName} (${assignedPhone})`}
-                            className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
-                          >
-                            <MessageCircle className="size-4" />
-                          </a>
+                          {/* Quick WhatsApp Link to Customer or Employee */}
+                          {cust.phone ? (
+                            <a
+                              href={`https://wa.me/${cust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`أهلاً بك أخي الكريم من وكالة العباد للسفريات بخصوص طلبكم: ${req.service || ''}`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={`محادثة العميل (${cust.phone})`}
+                              className="p-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                            >
+                              <MessageCircle className="size-4" />
+                            </a>
+                          ) : (
+                            <a
+                              href={`https://wa.me/${assignedPhone}?text=${encodeURIComponent(`بخصوص الطلب رقم: ${req.id ? req.id.slice(0, 8) : ''} - ${req.service || ''}`)}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              title={`محادثة مع الموظف المستلم ${assignedName}`}
+                              className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                            >
+                              <MessageCircle className="size-4" />
+                            </a>
+                          )}
 
                           {/* Delete */}
                           <button
@@ -648,117 +808,224 @@ export function AdminRequests() {
         )}
       </div>
 
-      {/* Request Details Modal */}
-      {selectedRequest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-200">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-              <div className="flex items-center gap-3">
-                <div className={`flex size-10 items-center justify-center rounded-xl text-white shadow-sm ${getDepartment(selectedRequest) === 'tickets' ? 'bg-[#0F2A48]' : 'bg-emerald-600'}`}>
-                  {getDepartment(selectedRequest) === 'tickets' ? <Plane className="size-5" /> : <ShieldCheck className="size-5" />}
+      {/* Comprehensive Request Details Modal */}
+      {selectedRequest && (() => {
+        const dept = getDepartment(selectedRequest);
+        const isTickets = dept === 'tickets';
+        const cust = getCustomerInfo(selectedRequest);
+        const assignedName = isTickets ? ticketsName : visasName;
+        const assignedPhone = isTickets ? ticketsNum : visasNum;
+        const parsed = parseRequestDetails(selectedRequest);
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm overflow-y-auto">
+            <div className="relative w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl border border-slate-200 my-8">
+              
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+                <div className="flex items-center gap-3">
+                  <div className={`flex size-11 items-center justify-center rounded-xl text-white shadow-sm ${isTickets ? 'bg-[#0F2A48]' : 'bg-emerald-600'}`}>
+                    {isTickets ? <Plane className="size-6" /> : <ShieldCheck className="size-6" />}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-[11px] font-bold px-2 py-0.5 rounded ${isTickets ? 'bg-sky-100 text-sky-900' : 'bg-emerald-100 text-emerald-900'}`}>
+                        {isTickets ? 'قسم التذاكر' : 'قسم التأشيرات والموافقات'}
+                      </span>
+                      <span className="text-xs font-mono text-slate-400">
+                        {selectedRequest.id ? selectedRequest.id.slice(0, 13) : ''}
+                      </span>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-1">
+                      {selectedRequest.service || 'استفسار طلب'}
+                    </h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-base font-bold text-slate-800">
-                    تفاصيل الطلب: {selectedRequest.service || 'استفسار واتساب'}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-mono">
-                    المعرف: {selectedRequest.id}
-                  </p>
-                </div>
+
+                <button
+                  onClick={() => setSelectedRequest(null)}
+                  className="flex size-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                >
+                  <X className="size-5" />
+                </button>
               </div>
 
-              <button
-                onClick={() => setSelectedRequest(null)}
-                className="flex size-8 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-              >
-                <X className="size-5" />
-              </button>
+              {/* Modal Body */}
+              <div className="mt-5 space-y-4 text-sm">
+                
+                {/* 1. Customer Card */}
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-bold text-emerald-800 flex items-center gap-1.5 uppercase">
+                      <User className="size-4" />
+                      بيانات العميل (صاحب الطلب)
+                    </span>
+                    {cust.phone ? (
+                      <span className="text-[11px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full">
+                        رقم هاتف متوفر
+                      </span>
+                    ) : (
+                      <span className="text-[11px] font-semibold text-slate-500 bg-slate-200/60 px-2 py-0.5 rounded-full">
+                        تحويل مباشر
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3 bg-white rounded-xl p-3.5 border border-emerald-100">
+                    <div>
+                      <span className="text-xs text-slate-500 block">اسم العميل:</span>
+                      <span className="text-sm font-bold text-slate-900">{cust.name}</span>
+                    </div>
+
+                    <div>
+                      <span className="text-xs text-slate-500 block">رقم هاتف العميل:</span>
+                      {cust.phone ? (
+                        <span className="font-mono text-sm font-bold text-emerald-700 dir-ltr block text-start" dir="ltr">
+                          {cust.phone}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400">لم يتم إدخال رقم (مراسلة مباشرة)</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Customer Quick Actions */}
+                  {cust.phone && (
+                    <div className="mt-3 flex items-center gap-2">
+                      <a
+                        href={`https://wa.me/${cust.phone.replace(/\D/g, '')}?text=${encodeURIComponent(`أهلاً بك أخي الكريم من وكالة العباد للسفريات والسياحة بخصوص طلبكم: ${selectedRequest.service || ''}`)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 flex items-center justify-center gap-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-colors"
+                      >
+                        <MessageCircle className="size-4" />
+                        <span>محادثة العميل واتساب مباشرة</span>
+                      </a>
+
+                      <a
+                        href={`tel:${cust.phone}`}
+                        className="flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2.5 text-xs font-bold text-slate-700 transition-colors"
+                      >
+                        <PhoneCall className="size-4 text-emerald-600" />
+                        <span>اتصال</span>
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                {/* 2. Structured Request Details */}
+                <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-3">
+                    <Plane className="size-4 text-primary" />
+                    تفاصيل المعاملة والخدمة
+                  </span>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                    <div className="bg-white rounded-xl p-3 border border-slate-100">
+                      <span className="text-[11px] text-slate-500 block">الوجهة أو المسار:</span>
+                      <span className="text-xs font-bold text-slate-900">{selectedRequest.destination || 'غير محدد'}</span>
+                    </div>
+
+                    <div className="bg-white rounded-xl p-3 border border-slate-100">
+                      <span className="text-[11px] text-slate-500 block">تاريخ الطلب:</span>
+                      <span className="text-xs font-mono text-slate-800">{formatDateTime(selectedRequest.created_at)}</span>
+                    </div>
+
+                    {Object.entries(parsed).map(([key, val]) => {
+                      if (key.includes('اسم') || key.includes('هاتف') || key.includes('الموظف') || key.includes('القسم')) return null;
+                      return (
+                        <div key={key} className="bg-white rounded-xl p-3 border border-slate-100">
+                          <span className="text-[11px] text-slate-500 block">{key}:</span>
+                          <span className="text-xs font-bold text-slate-900">{val}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* 3. Assigned Staff Card */}
+                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                  <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mb-2">
+                    <ShieldCheck className="size-4 text-sky-700" />
+                    الموظف المسؤول والقسم المسند إليه
+                  </span>
+
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50">
+                    <div>
+                      <span className="text-xs text-slate-500 block">الموظف المسند إليه:</span>
+                      <span className="text-sm font-bold text-slate-800">{assignedName}</span>
+                    </div>
+
+                    <div className="text-start">
+                      <span className="text-xs text-slate-500 block">الرقم المحول إليه:</span>
+                      <span className="font-mono text-xs font-bold text-slate-800 dir-ltr block" dir="ltr">
+                        +{assignedPhone}
+                      </span>
+                    </div>
+
+                    <a
+                      href={`https://wa.me/${assignedPhone}?text=${encodeURIComponent(`بخصوص الطلب: ${selectedRequest.service || ''} للعميل: ${cust.name} (${cust.phone || ''})`)}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex items-center gap-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-100"
+                    >
+                      <MessageCircle className="size-3.5 text-emerald-600" />
+                      محادثة الموظف
+                    </a>
+                  </div>
+                </div>
+
+                {/* 4. Full WhatsApp Message */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-bold text-slate-700">
+                      نص الرسالة المرسلة للواتساب بالكامل:
+                    </span>
+                    <button
+                      onClick={() => copyMessage(selectedRequest.message || '')}
+                      className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
+                    >
+                      {copiedText ? <Check className="size-3 text-emerald-600" /> : <Copy className="size-3" />}
+                      {copiedText ? "تم النسخ" : "نسخ النص"}
+                    </button>
+                  </div>
+                  <div className="max-h-36 overflow-y-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-mono text-xs text-slate-800 leading-relaxed">
+                    {selectedRequest.message || 'لا توجد تفاصيل نصية إضافية.'}
+                  </div>
+                </div>
+
+                {/* Status & Footer Actions */}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100 pt-4">
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <span className="text-xs font-bold text-slate-600">تحديث الحالة:</span>
+                    <select
+                      value={selectedRequest.status || 'new'}
+                      onChange={(e) => updateStatus(selectedRequest.id, e.target.value)}
+                      className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-primary"
+                    >
+                      <option value="new">🟡 جديد</option>
+                      <option value="in_progress">🔵 قيد المتابعة</option>
+                      <option value="replied">🟢 تم الإنجاز</option>
+                      <option value="cancelled">🔴 ملغي</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                    <button
+                      onClick={() => setSelectedRequest(null)}
+                      className="w-full sm:w-auto rounded-xl border border-slate-200 px-5 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
+                    >
+                      إغلاق
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
             </div>
-
-            {/* Modal Content */}
-            <div className="mt-5 space-y-4 text-sm">
-              {/* Row 1: Assigned Officer & Phone */}
-              <div className="grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3.5">
-                <div>
-                  <span className="text-xs text-slate-500 block">الموظف المسند إليه:</span>
-                  <span className="font-bold text-slate-800">
-                    {getDepartment(selectedRequest) === 'tickets' ? ticketsName : visasName}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-xs text-slate-500 block">الرقم المحول إليه:</span>
-                  <span className="font-mono font-semibold text-slate-800 dir-ltr block text-start">
-                    +{getDepartment(selectedRequest) === 'tickets' ? ticketsNum : visasNum}
-                  </span>
-                </div>
-              </div>
-
-              {/* Row 2: Destination & Time */}
-              <div className="grid grid-cols-2 gap-3 rounded-xl bg-slate-50 p-3.5">
-                <div>
-                  <span className="text-xs text-slate-500 block">الوجهة أو المسار:</span>
-                  <span className="font-bold text-slate-800">
-                    {selectedRequest.destination || 'غير محدد'}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-xs text-slate-500 block">وقت التحويل:</span>
-                  <span className="font-mono text-xs text-slate-700">
-                    {formatDateTime(selectedRequest.created_at)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Full Message Text */}
-              <div>
-                <span className="text-xs font-bold text-slate-700 block mb-1">
-                  نص الرسالة التي أُرسلت للواتساب:
-                </span>
-                <div className="max-h-48 overflow-y-auto whitespace-pre-wrap rounded-xl border border-slate-200 bg-slate-50 p-4 font-mono text-xs text-slate-800 leading-relaxed">
-                  {selectedRequest.message || 'لا توجد تفاصيل نصية مسجلة.'}
-                </div>
-              </div>
-
-              {/* Status Update in Modal */}
-              <div className="flex items-center justify-between border-t border-slate-100 pt-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-600">تحديث الحالة:</span>
-                  <select
-                    value={selectedRequest.status || 'new'}
-                    onChange={(e) => updateStatus(selectedRequest.id, e.target.value)}
-                    className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-primary"
-                  >
-                    <option value="new">🟡 جديد</option>
-                    <option value="in_progress">🔵 قيد المتابعة</option>
-                    <option value="replied">🟢 تم الإنجاز</option>
-                    <option value="cancelled">🔴 ملغي</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <a
-                    href={`https://wa.me/${getDepartment(selectedRequest) === 'tickets' ? ticketsNum : visasNum}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700"
-                  >
-                    <MessageCircle className="size-4" />
-                    محادثة واتساب
-                  </a>
-                  <button
-                    onClick={() => setSelectedRequest(null)}
-                    className="rounded-xl border border-slate-200 px-4 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50"
-                  >
-                    إغلاق
-                  </button>
-                </div>
-              </div>
-            </div>
-
           </div>
-        </div>
-      )}
+        );
+      })()}
     </AdminLayout>
   );
 }

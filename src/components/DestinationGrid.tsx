@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, X, ShieldCheck, Plane, CheckCircle2, Loader2 } from "lucide-react";
+import { ArrowLeft, X, ShieldCheck, Plane, CheckCircle2, Loader2, User, Phone, MessageSquare } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
@@ -20,6 +20,8 @@ export function DestinationGrid() {
   const [step, setStep] = useState<"services" | "airports" | "security">("services");
   const [activeService, setActiveService] = useState<any | null>(null);
   const [whatsappMsg, setWhatsappMsg] = useState<string>("");
+  const [customerName, setCustomerName] = useState<string>("");
+  const [customerPhone, setCustomerPhone] = useState<string>("");
 
   const isRtl = i18n.dir() === "rtl";
   const lang = i18n.language; // 'ar' or 'en'
@@ -78,6 +80,8 @@ export function DestinationGrid() {
       setStep("services");
       setActiveService(null);
       setWhatsappMsg("");
+      setCustomerName("");
+      setCustomerPhone("");
     }, 300);
   };
 
@@ -88,54 +92,22 @@ export function DestinationGrid() {
     if (service.airports && service.airports.length > 0) {
       setStep("airports");
     } else {
-      const msg = lang === "ar" ? service.whatsappMessage_ar : service.whatsappMessage_en;
-      const isFlight = isFlightService(service);
-      const targetPhone = isFlight ? ticketWhatsAppNumber : visaWhatsAppNumber;
-      const targetEmp = isFlight ? ticketsEmployee : visasEmployee;
-      const dept = isFlight ? "tickets" : "visas";
-
-      if (service.requiresPassport) {
-        setWhatsappMsg(msg);
-        setStep("security");
-      } else {
-        // Record request for admin supervision
-        recordWhatsAppRequest({
-          department: dept,
-          phone: targetPhone,
-          employeeName: targetEmp,
-          destination: selected?.name_ar || selected?.name || "وجهة سياحية",
-          service: service.title_ar || service.title || (isFlight ? "تذاكر طيران" : "خدمة تأشيرة/موافقة"),
-          message: msg,
-        });
-        logWhatsAppClick("destination_service", selected?.id, service.id);
-        window.open(getWhatsAppUrl(targetPhone, msg, isFlight ? '968' : '967'), "_blank", "noopener,noreferrer");
-      }
+      const msg = lang === "ar" 
+        ? (service.whatsappMessage_ar || service.wa_message_ar || service.title_ar) 
+        : (service.whatsappMessage_en || service.wa_message_en || service.title_en);
+      setWhatsappMsg(msg);
+      setStep("security");
     }
   };
 
   const handleAirportClick = (airport: any, service: any) => {
     if (navigator.vibrate) navigator.vibrate(10);
-    setActiveService(service);
-    const msg = lang === "ar" ? airport.whatsappMessage_ar : airport.whatsappMessage_en;
-    const targetPhone = ticketWhatsAppNumber; // Airports are always tickets
-    const targetEmp = ticketsEmployee;
-
-    if (service.requiresPassport) {
-      setWhatsappMsg(msg);
-      setStep("security");
-    } else {
-      // Record request for admin supervision
-      recordWhatsAppRequest({
-        department: "tickets",
-        phone: targetPhone,
-        employeeName: targetEmp,
-        destination: selected?.name_ar || selected?.name || "وجهة سياحية",
-        service: `تذاكر طيران - ${service.title_ar || service.title} (${airport.name_ar || airport.name_en})`,
-        message: msg,
-      });
-      logWhatsAppClick("airport_selection", selected?.id, service.id, { airport_id: airport.id });
-      window.open(getWhatsAppUrl(targetPhone, msg, '968'), "_blank", "noopener,noreferrer");
-    }
+    setActiveService({ ...service, selectedAirport: airport });
+    const msg = lang === "ar" 
+      ? (airport.whatsappMessage_ar || airport.wa_message_ar || airport.name_ar) 
+      : (airport.whatsappMessage_en || airport.wa_message_en || airport.name_en);
+    setWhatsappMsg(msg);
+    setStep("security");
   };
 
   const proceedToWhatsApp = () => {
@@ -144,20 +116,37 @@ export function DestinationGrid() {
     const targetEmp = isFlight ? ticketsEmployee : visasEmployee;
     const dept = isFlight ? "tickets" : "visas";
 
+    let finalMsg = whatsappMsg || (lang === "ar" ? (activeService?.title_ar || "طلب استفسار") : (activeService?.title_en || "Inquiry"));
+
+    if (customerName.trim() || customerPhone.trim()) {
+      finalMsg += `\n\n[بيانات العميل للتواصل]:`;
+      if (customerName.trim()) finalMsg += `\n👤 الاسم: ${customerName.trim()}`;
+      if (customerPhone.trim()) finalMsg += `\n📱 رقم الواتساب: ${customerPhone.trim()}`;
+    }
+
+    const serviceTitle = `${activeService?.title_ar || activeService?.title || (isFlight ? "تذاكر طيران" : "خدمة تأشيرة/موافقة")}${activeService?.selectedAirport ? ` (${activeService.selectedAirport.name_ar || activeService.selectedAirport.name_en})` : ''}`;
+
     recordWhatsAppRequest({
       department: dept,
       phone: targetPhone,
       employeeName: targetEmp,
+      customerName: customerName.trim() || (isFlight ? "عميل تذاكر طيران" : "عميل تأشيرات وموافقات"),
+      customerPhone: customerPhone.trim() || "",
       destination: selected?.name_ar || selected?.name || "وجهة سياحية",
-      service: `${activeService?.title_ar || activeService?.title || (isFlight ? "تذاكر طيران مع جواز" : "خدمة تأشيرة مع جواز")}`,
-      message: whatsappMsg,
+      service: serviceTitle,
+      message: finalMsg,
       details: {
-        "نوع المعاملة": isFlight ? "تذاكر طيران" : "تأشيرات وموافقات",
-        "حالة الجواز": "تم تأكيد طلب إرفاق صورة الجواز"
+        "نوع المعاملة": isFlight ? "تذاكر طيران" : "تأشيرات وموافقات أمنية",
+        "اسم العميل": customerName.trim() || "غير مسجل",
+        "هاتف العميل": customerPhone.trim() || "تواصل مباشر",
+        "الوجهة": selected?.name_ar || selected?.name || "غير محدد",
+        "المطار": activeService?.selectedAirport ? (activeService.selectedAirport.name_ar || activeService.selectedAirport.name_en) : "غير محدد",
+        "حالة الجواز": activeService?.requiresPassport || activeService?.requires_passport ? "مطلوب إرفاق صورة الجواز" : "غير مطلوب"
       }
     });
-    logWhatsAppClick("destination_service_with_passport", selected?.id, activeService?.id);
-    window.open(getWhatsAppUrl(targetPhone, whatsappMsg, isFlight ? '968' : '967'), "_blank", "noopener,noreferrer");
+
+    logWhatsAppClick("destination_service", selected?.id, activeService?.id, { customerName, customerPhone });
+    window.open(getWhatsAppUrl(targetPhone, finalMsg, isFlight ? '968' : '967'), "_blank", "noopener,noreferrer");
     closeDestination();
   };
 
@@ -399,29 +388,72 @@ export function DestinationGrid() {
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       transition={{ duration: 0.3 }}
-                      className="flex flex-col items-center text-center pt-4 sm:pt-8"
+                      className="flex flex-col items-center text-center pt-2 sm:pt-4"
                     >
-                      <div className="relative mb-6 flex size-20 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
-                        <div className="absolute inset-0 animate-ping rounded-full bg-emerald-100 opacity-50"></div>
-                        <ShieldCheck className="relative z-10 size-10" />
+                      <div className="relative mb-4 flex size-16 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 shadow-sm">
+                        {isFlightService(activeService) ? (
+                          <Plane className="size-8 text-[#0F2A48]" />
+                        ) : activeService?.requiresPassport || activeService?.requires_passport ? (
+                          <ShieldCheck className="size-8 text-emerald-600" />
+                        ) : (
+                          <MessageSquare className="size-8 text-emerald-600" />
+                        )}
                       </div>
                       
-                      <h4 className="text-2xl font-bold text-foreground">
-                        {t("dest.secure_space")}
+                      <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full mb-1">
+                        {selected?.name_ar || selected?.name}
+                      </span>
+                      
+                      <h4 className="text-xl sm:text-2xl font-bold text-foreground">
+                        {activeService?.title_ar || activeService?.title || (isFlightService(activeService) ? "حجز تذاكر طيران" : "طلب خدمة")}
                       </h4>
-                      <p className="mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base max-w-sm mx-auto" dangerouslySetInnerHTML={{__html: t("dest.secure_space_desc")}} />
+
+                      {(activeService?.requiresPassport || activeService?.requires_passport) ? (
+                        <p className="mt-2 text-xs sm:text-sm leading-relaxed text-muted-foreground max-w-sm mx-auto" dangerouslySetInnerHTML={{__html: t("dest.secure_space_desc")}} />
+                      ) : (
+                        <p className="mt-2 text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
+                          يرجى تأكيد بياناتك لمتابعة استفسارك وحجزك مع الموظف المختص فوراً.
+                        </p>
+                      )}
+
+                      {/* Customer Contact Inputs */}
+                      <div className="mt-5 w-full max-w-sm space-y-2.5 text-right" dir={isRtl ? "rtl" : "ltr"}>
+                        <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 focus-within:border-primary focus-within:ring-1">
+                          <User className="size-4 text-muted-foreground shrink-0" />
+                          <input
+                            type="text"
+                            value={customerName}
+                            onChange={(e) => setCustomerName(e.target.value)}
+                            placeholder="الاسم الكريم (اختياري)"
+                            className="w-full bg-transparent text-xs sm:text-sm font-medium text-foreground outline-none placeholder:text-muted-foreground/60"
+                          />
+                        </div>
+
+                        <div className="flex h-12 items-center gap-2.5 rounded-xl border border-border bg-card px-3.5 focus-within:border-primary focus-within:ring-1">
+                          <Phone className="size-4 text-emerald-600 shrink-0" />
+                          <input
+                            type="tel"
+                            value={customerPhone}
+                            onChange={(e) => setCustomerPhone(e.target.value)}
+                            placeholder="رقم الواتساب للتواصل (مثال: 77XXXXXXX)"
+                            className="w-full bg-transparent text-xs sm:text-sm font-bold text-foreground outline-none placeholder:text-muted-foreground/60 dir-ltr text-right focus:text-left"
+                            dir="ltr"
+                          />
+                        </div>
+                      </div>
                       
                       <Button 
                         size="lg" 
                         onClick={proceedToWhatsApp}
-                        className="mt-8 w-full sm:w-auto h-12 px-8 text-base shadow-lg shadow-primary/20 bg-emerald-600 hover:bg-emerald-700 text-white"
+                        className="mt-6 w-full max-w-sm h-12 px-8 text-sm sm:text-base font-bold shadow-lg shadow-emerald-600/20 bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2"
                       >
-                        {t("dest.go_to_whatsapp")}
+                        <MessageSquare className="size-5" />
+                        <span>متابعة وإرسال الطلب عبر الواتساب</span>
                       </Button>
                       
                       <button 
                         onClick={() => setStep(activeService?.airports ? "airports" : "services")}
-                        className="mt-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                        className="mt-3 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {t("dest.cancel")}
                       </button>
