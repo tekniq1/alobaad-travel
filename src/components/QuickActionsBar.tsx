@@ -1,4 +1,3 @@
-import { useRef, useEffect } from "react";
 import { Plane } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -14,92 +13,8 @@ const actions = [
 
 export function QuickActionsBar() {
   const { t } = useTranslation();
-  const scrollRef  = useRef<HTMLDivElement>(null);
-  const rafRef     = useRef<number>();
-  const pausedRef  = useRef(false);
-  const timerRef   = useRef<ReturnType<typeof setTimeout>>();
-  const fractional = useRef(0);
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    // We wait a frame to ensure CSS layout has calculated widths
-    const setup = setTimeout(() => {
-      // Only auto-scroll if the items actually overflow the container
-      if (el.scrollWidth > el.clientWidth) {
-        // Start slightly scrolled right so we don't immediately wrap on the first frame
-        el.scrollLeft = 30;
-      }
-    }, 100);
-
-    let lastTime = performance.now();
-    const SPEED = 22; // px per second, slow and elegant
-
-    const tick = (time: number) => {
-      const dt = (time - lastTime) / 1000;
-      lastTime = time;
-
-      if (!pausedRef.current && el && el.scrollWidth > el.clientWidth) {
-        fractional.current += SPEED * dt;
-        
-        if (fractional.current >= 1) {
-          const pixels = Math.floor(fractional.current);
-          fractional.current -= pixels;
-          
-          el.scrollLeft -= pixels; // move content right
-
-          // Wrap right-most item to the left when it fully exits
-          if (el.scrollLeft <= 0) {
-            const last = el.lastElementChild as HTMLElement;
-            if (last) {
-              const style = window.getComputedStyle(last);
-              const w = last.offsetWidth + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
-              el.prepend(last); // move DOM node
-              el.scrollLeft += w; // adjust scroll so visual position is perfectly seamless
-            }
-          }
-          
-          // Wrap left-most item to the right (in case user swipes manually to the left)
-          if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 2) {
-            const first = el.firstElementChild as HTMLElement;
-            if (first) {
-              const style = window.getComputedStyle(first);
-              const w = first.offsetWidth + parseFloat(style.marginLeft) + parseFloat(style.marginRight);
-              el.append(first); // move DOM node
-              el.scrollLeft -= w; // adjust scroll
-            }
-          }
-        }
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    };
-
-    rafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      clearTimeout(setup);
-      if (rafRef.current)  cancelAnimationFrame(rafRef.current);
-      if (timerRef.current) clearTimeout(timerRef.current);
-    };
-  }, []);
-
-  const pause = () => {
-    pausedRef.current = true;
-    if (timerRef.current) clearTimeout(timerRef.current);
-  };
-
-  const scheduleResume = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => { 
-      pausedRef.current = false; 
-    }, 2000);
-  };
 
   const trigger = (action: typeof actions[0]) => {
-    if (navigator.vibrate) navigator.vibrate(10);
     if (action.isDestination) {
       window.dispatchEvent(
         new CustomEvent("openDestinationModal", { detail: { id: action.id } })
@@ -111,38 +26,32 @@ export function QuickActionsBar() {
 
   return (
     <div className="relative z-20 -mt-3 sm:-mt-5">
-      {/* -- MOBILE: cyclic DOM ticker -- */}
+      {/* Mobile & Tablet: Native smooth touch-scroll bar */}
       <div className="lg:hidden">
         <div
-          ref={scrollRef}
-          dir="ltr"
-          onTouchStart={pause}
-          onTouchEnd={scheduleResume}
-          onMouseEnter={pause}
-          onMouseLeave={scheduleResume}
           aria-label="Quick Actions"
-          className="flex overflow-x-auto py-4 px-2 hide-scrollbar scroll-smooth-disabled"
-          style={{ scrollBehavior: 'auto' }}
+          className="flex overflow-x-auto py-3 px-4 gap-3 no-scrollbar scroll-smooth"
+          style={{ WebkitOverflowScrolling: "touch" }}
         >
           {actions.map((action) => (
             <button
               key={action.id}
               onClick={() => trigger(action)}
               aria-label={t(action.key)}
-              className="mx-2 flex min-w-[135px] shrink-0 items-center justify-center gap-3 rounded-2xl border border-[#0D2742]/10 bg-white px-5 py-3.5 shadow-[0_4px_16px_rgba(13,39,66,0.05)] transition-transform active:scale-95"
+              className="flex shrink-0 items-center justify-center gap-2.5 rounded-2xl border border-[#0D2742]/10 bg-white px-4 py-3 shadow-[0_2px_12px_rgba(13,39,66,0.06)] active:scale-95 transition-transform"
             >
-              <span className={`flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden ${
+              <span className={`flex size-7 shrink-0 items-center justify-center rounded-full overflow-hidden ${
                 action.isDestination
                   ? "bg-[#EAF6FB]"
                   : "bg-[#159DD3] text-white"
               }`}>
                 {action.flagImg ? (
-                  <img src={action.flagImg} alt={t(action.key)} className="w-full h-full object-cover" />
+                  <img src={action.flagImg} alt={t(action.key)} className="w-full h-full object-cover" loading="lazy" />
                 ) : (
-                  <Plane className="size-4" />
+                  <Plane className="size-3.5" />
                 )}
               </span>
-              <span className="whitespace-nowrap text-sm font-bold text-[#0D2742]">
+              <span className="text-xs font-bold text-[#0D2742] whitespace-nowrap">
                 {t(action.key)}
               </span>
             </button>
@@ -150,28 +59,30 @@ export function QuickActionsBar() {
         </div>
       </div>
 
-      {/* -- DESKTOP: stable grid -- */}
-      <div className="hidden lg:block px-5 sm:px-8 lg:px-12">
-        <div className="mx-auto max-w-6xl rounded-3xl bg-white p-3.5 shadow-[0_8px_30px_rgba(13,39,66,0.08)]">
-          <div className="flex flex-wrap items-center justify-center gap-4">
+      {/* Desktop Bar */}
+      <div className="hidden lg:block">
+        <div className="mx-auto max-w-7xl px-5 sm:px-8 xl:px-12">
+          <div className="grid grid-cols-7 gap-3 rounded-2xl border border-[#0D2742]/10 bg-white/90 p-3 shadow-[0_8px_30px_rgba(13,39,66,0.08)] backdrop-blur-md">
             {actions.map((action) => (
               <button
                 key={action.id}
                 onClick={() => trigger(action)}
-                className="group flex items-center justify-center gap-3.5 rounded-2xl bg-[#F7FAFC] px-6 py-4 transition-all hover:bg-[#EAF6FB] hover:shadow-sm"
+                className="group flex items-center justify-center gap-2.5 rounded-xl p-2.5 transition-all hover:bg-[#EAF6FB] active:scale-95"
               >
-                <span className={`flex size-10 shrink-0 items-center justify-center rounded-full overflow-hidden transition-colors ${
+                <span className={`flex size-8 shrink-0 items-center justify-center rounded-full overflow-hidden transition-transform group-hover:scale-110 ${
                   action.isDestination
-                    ? "bg-[#EAF6FB] group-hover:bg-[#0D2742]"
-                    : "bg-[#159DD3] text-white group-hover:bg-[#0D2742]"
+                    ? "bg-[#EAF6FB]"
+                    : "bg-[#159DD3] text-white"
                 }`}>
                   {action.flagImg ? (
-                    <img src={action.flagImg} alt={t(action.key)} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110" />
+                    <img src={action.flagImg} alt={t(action.key)} className="w-full h-full object-cover" loading="lazy" />
                   ) : (
-                    <Plane className="size-5 transition-transform group-hover:scale-110" />
+                    <Plane className="size-4" />
                   )}
                 </span>
-                <span className="font-bold text-[#0D2742]">{t(action.key)}</span>
+                <span className="text-xs font-bold text-[#0D2742] group-hover:text-primary transition-colors whitespace-nowrap">
+                  {t(action.key)}
+                </span>
               </button>
             ))}
           </div>

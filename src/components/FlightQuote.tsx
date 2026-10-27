@@ -23,13 +23,11 @@ export function FlightQuote() {
   const swapLocations = () => {
     setFrom(to);
     setTo(from);
-    if (navigator.vibrate) navigator.vibrate(10);
   };
 
   const hasEnoughInfo = from.length > 2 && to.length > 2 && date;
 
   const submit = () => {
-    if (navigator.vibrate) navigator.vibrate(18);
     
     const tripTypeString = tripType === "round" ? t("flight.round_trip") : t("flight.one_way");
     

@@ -54,7 +54,6 @@ export function DestinationGrid() {
   }, [selected]);
 
   const openDestination = (destination: any) => {
-    if (navigator.vibrate) navigator.vibrate(16);
     setSelected(destination);
     setStep("services");
     setActiveService(null);
@@ -86,7 +85,6 @@ export function DestinationGrid() {
   };
 
   const handleServiceClick = (service: any) => {
-    if (navigator.vibrate) navigator.vibrate(10);
     setActiveService(service);
     
     if (service.airports && service.airports.length > 0) {
@@ -101,7 +99,6 @@ export function DestinationGrid() {
   };
 
   const handleAirportClick = (airport: any, service: any) => {
-    if (navigator.vibrate) navigator.vibrate(10);
     setActiveService({ ...service, selectedAirport: airport });
     const msg = lang === "ar" 
       ? (airport.whatsappMessage_ar || airport.wa_message_ar || airport.name_ar) 
@@ -245,21 +242,21 @@ export function DestinationGrid() {
       <AnimatePresence>
         {selected && (
           <motion.div
-            className="fixed inset-0 z-50 flex items-end justify-center bg-[#0D2742]/60 p-0 backdrop-blur-sm sm:items-center sm:p-6"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-[#0D2742]/70 p-0 sm:items-center sm:p-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.18 }}
             onMouseDown={(event) => event.currentTarget === event.target && closeDestination()}
           >
             <motion.div
               role="dialog"
               aria-modal="true"
               aria-label={`${t("dest.services_of")} ${lang === "ar" ? selected.name_ar : selected.name_en}`}
-              initial={{ y: "100%", opacity: 0.5 }}
+              initial={{ y: "40px", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: "100%", opacity: 0 }}
-              transition={{ type: "spring", stiffness: 350, damping: 30, mass: 1 }}
+              exit={{ y: "40px", opacity: 0 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
               className="relative flex max-h-[85vh] w-full max-w-4xl flex-col overflow-hidden rounded-t-[2rem] bg-white shadow-2xl md:max-h-[85vh] md:flex-row sm:rounded-[2rem]"
             >
               {/* Left Side (Desktop) / Top (Mobile) */}
