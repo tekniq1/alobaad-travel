@@ -4,12 +4,13 @@ import { MapPin, Mail, Phone, MessageCircle, ShieldCheck, Plane } from "lucide-r
 import { Button } from "./ui/button";
 import { useSiteSettings } from "../hooks/useSiteSettings";
 import { recordWhatsAppRequest } from "../lib/api";
+import { getWhatsAppUrl, cleanWhatsAppPhone } from "../lib/utils";
 
 export function ContactSection() {
   const { t } = useTranslation();
   const { settings } = useSiteSettings();
-  const visasNum = settings.whatsapp_visas || "967778383338";
-  const ticketsNum = settings.whatsapp_tickets || "96876652555";
+  const visasNum = cleanWhatsAppPhone(settings.whatsapp_visas, '967');
+  const ticketsNum = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
 
   return (
     <section id="contact" className="relative overflow-hidden bg-muted/30 px-5 py-20 sm:px-8 lg:px-12">
@@ -72,7 +73,7 @@ export function ContactSection() {
               </div>
               <Button asChild size="sm" className="w-full mt-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs">
                 <a 
-                  href={`https://wa.me/${visasNum}?text=${encodeURIComponent(t("whatsapp_channels.visas_msg"))}`}
+                  href={getWhatsAppUrl(visasNum, t("whatsapp_channels.visas_msg"), '967')}
                   target="_blank" 
                   rel="noreferrer"
                   onClick={() => {
@@ -117,7 +118,7 @@ export function ContactSection() {
               </div>
               <Button asChild size="sm" className="w-full mt-1 rounded-xl bg-[#0F2A48] hover:bg-[#163a63] text-white font-medium text-xs">
                 <a 
-                  href={`https://wa.me/${ticketsNum}?text=${encodeURIComponent(t("whatsapp_channels.tickets_msg"))}`}
+                  href={getWhatsAppUrl(ticketsNum, t("whatsapp_channels.tickets_msg"), '968')}
                   target="_blank" 
                   rel="noreferrer"
                   onClick={() => {

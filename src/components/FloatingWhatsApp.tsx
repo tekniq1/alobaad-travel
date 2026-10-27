@@ -5,6 +5,7 @@ import { useSiteSettings } from "../hooks/useSiteSettings";
 import { Plane, ShieldCheck, X, MessageSquare, ArrowLeft, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { logWhatsAppClick, recordWhatsAppRequest } from "../lib/api";
+import { getWhatsAppUrl, cleanWhatsAppPhone } from "../lib/utils";
 
 export function FloatingWhatsApp() {
   const { t, i18n } = useTranslation();
@@ -15,8 +16,8 @@ export function FloatingWhatsApp() {
   const isRtl = i18n.dir() === "rtl";
   const ArrowIcon = isRtl ? ArrowLeft : ArrowRight;
 
-  const ticketsNumber = settings.whatsapp_tickets || "96876652555";
-  const visasNumber = settings.whatsapp_visas || "967778383338";
+  const ticketsNumber = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
+  const visasNumber = cleanWhatsAppPhone(settings.whatsapp_visas, '967');
 
   // Close when clicking outside
   useEffect(() => {
@@ -50,8 +51,7 @@ export function FloatingWhatsApp() {
       message: defaultMsg,
     });
     logWhatsAppClick(`floating_whatsapp_${type}`);
-    const encoded = encodeURIComponent(defaultMsg);
-    window.open(`https://wa.me/${number}?text=${encoded}`, "_blank", "noopener,noreferrer");
+    window.open(getWhatsAppUrl(number, defaultMsg, type === "tickets" ? '968' : '967'), "_blank", "noopener,noreferrer");
     setIsOpen(false);
   };
 

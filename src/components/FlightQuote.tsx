@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "motion/react";
 import { useSiteSettings } from "../hooks/useSiteSettings";
+import { getWhatsAppUrl, cleanWhatsAppPhone } from "../lib/utils";
 
 export function FlightQuote() {
   const { t, i18n } = useTranslation();
@@ -38,7 +39,7 @@ export function FlightQuote() {
     
     message += `${t("flight.wa_msg_6")}${travelers}`;
     
-    const ticketNumber = settings.whatsapp_tickets || "96876652555";
+    const ticketNumber = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
     const employeeName = settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران";
 
     // Record request into database for admin supervision
@@ -63,7 +64,7 @@ export function FlightQuote() {
       });
     });
     
-    window.open(`https://wa.me/${ticketNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    window.open(getWhatsAppUrl(ticketNumber, message, '968'), "_blank", "noopener,noreferrer");
   };
 
   return (

@@ -6,12 +6,13 @@ import { Button } from "./ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDestinations, logWhatsAppClick, recordWhatsAppRequest } from "../lib/api";
 import { useSiteSettings } from "../hooks/useSiteSettings";
+import { getWhatsAppUrl, cleanWhatsAppPhone } from "../lib/utils";
 
 export function DestinationGrid() {
   const { t, i18n } = useTranslation();
   const { settings } = useSiteSettings();
-  const visaWhatsAppNumber = settings.whatsapp_visas || "967778383338";
-  const ticketWhatsAppNumber = settings.whatsapp_tickets || "96876652555";
+  const visaWhatsAppNumber = cleanWhatsAppPhone(settings.whatsapp_visas, '967');
+  const ticketWhatsAppNumber = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
   const visasEmployee = settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات";
   const ticketsEmployee = settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران";
 
@@ -107,7 +108,7 @@ export function DestinationGrid() {
           message: msg,
         });
         logWhatsAppClick("destination_service", selected?.id, service.id);
-        window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+        window.open(getWhatsAppUrl(targetPhone, msg, isFlight ? '968' : '967'), "_blank", "noopener,noreferrer");
       }
     }
   };
@@ -133,7 +134,7 @@ export function DestinationGrid() {
         message: msg,
       });
       logWhatsAppClick("airport_selection", selected?.id, service.id, { airport_id: airport.id });
-      window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+      window.open(getWhatsAppUrl(targetPhone, msg, '968'), "_blank", "noopener,noreferrer");
     }
   };
 
@@ -156,7 +157,7 @@ export function DestinationGrid() {
       }
     });
     logWhatsAppClick("destination_service_with_passport", selected?.id, activeService?.id);
-    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
+    window.open(getWhatsAppUrl(targetPhone, whatsappMsg, isFlight ? '968' : '967'), "_blank", "noopener,noreferrer");
     closeDestination();
   };
 

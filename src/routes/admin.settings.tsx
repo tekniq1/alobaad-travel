@@ -3,6 +3,7 @@ import { AdminLayout } from "../components/admin/AdminLayout";
 import { Settings, Save, Phone, Mail, MapPin, Lock, ShieldCheck } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { cleanWhatsAppPhone } from "../lib/utils";
 
 export const Route = createFileRoute("/admin/settings")({
   component: AdminSettings,
@@ -72,16 +73,19 @@ function AdminSettings() {
     setMessage("");
     
     try {
+      const cleanTickets = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
+      const cleanVisas = cleanWhatsAppPhone(settings.whatsapp_visas, '967');
+
       localStorage.setItem("alobaad_site_settings", JSON.stringify({
-        whatsapp_tickets: settings.whatsapp_tickets,
+        whatsapp_tickets: cleanTickets,
         whatsapp_tickets_name: settings.whatsapp_tickets_name,
-        whatsapp_visas: settings.whatsapp_visas,
+        whatsapp_visas: cleanVisas,
         whatsapp_visas_name: settings.whatsapp_visas_name,
       }));
 
       const payload: any = {
         ...(settings.id ? { id: settings.id } : {}),
-        whatsapp_number: settings.whatsapp_tickets || settings.whatsapp_number,
+        whatsapp_number: cleanTickets,
         email_address: settings.email_address,
         address_ar: settings.address_ar,
         address_en: settings.address_en,

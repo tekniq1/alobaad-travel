@@ -2,6 +2,7 @@ import { Send, MapPin, Phone, Clock3, Facebook, Instagram, Twitter, Mail } from 
 import { useTranslation } from "react-i18next";
 import logoAsset from "../assets/alobaad-logo.jpg.asset.json";
 import { useSiteSettings } from "../hooks/useSiteSettings";
+import { getWhatsAppUrl, cleanWhatsAppPhone } from "../lib/utils";
 
 function WhatsAppIcon({ className = "size-4" }: { className?: string }) {
   return (
@@ -16,8 +17,8 @@ export function SiteFooter() {
   const isRtl = i18n.dir() === "rtl";
   const { settings } = useSiteSettings();
 
-  const visasNum = settings.whatsapp_visas || "967778383338";
-  const ticketsNum = settings.whatsapp_tickets || "96876652555";
+  const visasNum = cleanWhatsAppPhone(settings.whatsapp_visas, '967');
+  const ticketsNum = cleanWhatsAppPhone(settings.whatsapp_tickets, '968');
   const WA_MESSAGE = encodeURIComponent(t("hero.wa_msg"));
 
 
@@ -126,7 +127,7 @@ export function SiteFooter() {
                   <span className="text-xs text-white/40">{t("whatsapp_channels.visas_title")}:</span>
                 </div>
                 <a
-                  href={`https://wa.me/${visasNum}?text=${encodeURIComponent(t("whatsapp_channels.visas_msg"))}`}
+                  href={getWhatsAppUrl(visasNum, t("whatsapp_channels.visas_msg"), '967')}
                   target="_blank"
                   rel="noreferrer"
                   dir="ltr"
@@ -141,7 +142,7 @@ export function SiteFooter() {
                   <span className="text-xs text-white/40">{t("whatsapp_channels.tickets_title")}:</span>
                 </div>
                 <a
-                  href={`https://wa.me/${ticketsNum}?text=${encodeURIComponent(t("whatsapp_channels.tickets_msg"))}`}
+                  href={getWhatsAppUrl(ticketsNum, t("whatsapp_channels.tickets_msg"), '968')}
                   target="_blank"
                   rel="noreferrer"
                   dir="ltr"
