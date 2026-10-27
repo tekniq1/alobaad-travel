@@ -11,7 +11,10 @@ export function DestinationGrid() {
   const { t, i18n } = useTranslation();
   const { settings } = useSiteSettings();
   const visaWhatsAppNumber = settings.whatsapp_visas || "967778383338";
-  const employeeName = settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات";
+  const ticketWhatsAppNumber = settings.whatsapp_tickets || "96876652555";
+  const visasEmployee = settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات";
+  const ticketsEmployee = settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران";
+
   const [selected, setSelected] = useState<any | null>(null);
   const [step, setStep] = useState<"services" | "airports" | "security">("services");
   const [activeService, setActiveService] = useState<any | null>(null);
@@ -19,6 +22,18 @@ export function DestinationGrid() {
 
   const isRtl = i18n.dir() === "rtl";
   const lang = i18n.language; // 'ar' or 'en'
+
+  const isFlightService = (service: any): boolean => {
+    if (!service) return false;
+    const title = (service.title_ar || service.title || service.title_en || "").toLowerCase();
+    return (
+      title.includes("طيران") ||
+      title.includes("تذكر") ||
+      title.includes("flight") ||
+      title.includes("ticket") ||
+      Boolean(service.airports && service.airports.length > 0)
+    );
+  };
 
   const { data: destinations, isLoading, isError } = useQuery({
     queryKey: ['destinations'],
@@ -67,66 +82,81 @@ export function DestinationGrid() {
 
   const handleServiceClick = (service: any) => {
     if (navigator.vibrate) navigator.vibrate(10);
+    setActiveService(service);
     
     if (service.airports && service.airports.length > 0) {
-      setActiveService(service);
       setStep("airports");
     } else {
       const msg = lang === "ar" ? service.whatsappMessage_ar : service.whatsappMessage_en;
+      const isFlight = isFlightService(service);
+      const targetPhone = isFlight ? ticketWhatsAppNumber : visaWhatsAppNumber;
+      const targetEmp = isFlight ? ticketsEmployee : visasEmployee;
+      const dept = isFlight ? "tickets" : "visas";
+
       if (service.requiresPassport) {
         setWhatsappMsg(msg);
         setStep("security");
       } else {
         // Record request for admin supervision
         recordWhatsAppRequest({
-          department: "visas",
-          phone: visaWhatsAppNumber,
-          employeeName: employeeName,
+          department: dept,
+          phone: targetPhone,
+          employeeName: targetEmp,
           destination: selected?.name_ar || selected?.name || "وجهة سياحية",
-          service: service.title_ar || service.title || "خدمة تأشيرة/موافقة",
+          service: service.title_ar || service.title || (isFlight ? "تذاكر طيران" : "خدمة تأشيرة/موافقة"),
           message: msg,
         });
         logWhatsAppClick("destination_service", selected?.id, service.id);
-        window.open(`https://wa.me/${visaWhatsAppNumber}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+        window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
       }
     }
   };
 
   const handleAirportClick = (airport: any, service: any) => {
     if (navigator.vibrate) navigator.vibrate(10);
+    setActiveService(service);
     const msg = lang === "ar" ? airport.whatsappMessage_ar : airport.whatsappMessage_en;
+    const targetPhone = ticketWhatsAppNumber; // Airports are always tickets
+    const targetEmp = ticketsEmployee;
+
     if (service.requiresPassport) {
       setWhatsappMsg(msg);
       setStep("security");
     } else {
       // Record request for admin supervision
       recordWhatsAppRequest({
-        department: "visas",
-        phone: visaWhatsAppNumber,
-        employeeName: employeeName,
+        department: "tickets",
+        phone: targetPhone,
+        employeeName: targetEmp,
         destination: selected?.name_ar || selected?.name || "وجهة سياحية",
-        service: `${service.title_ar || service.title} (${airport.name_ar || airport.name_en})`,
+        service: `تذاكر طيران - ${service.title_ar || service.title} (${airport.name_ar || airport.name_en})`,
         message: msg,
       });
       logWhatsAppClick("airport_selection", selected?.id, service.id, { airport_id: airport.id });
-      window.open(`https://wa.me/${visaWhatsAppNumber}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
     }
   };
 
   const proceedToWhatsApp = () => {
+    const isFlight = isFlightService(activeService);
+    const targetPhone = isFlight ? ticketWhatsAppNumber : visaWhatsAppNumber;
+    const targetEmp = isFlight ? ticketsEmployee : visasEmployee;
+    const dept = isFlight ? "tickets" : "visas";
+
     recordWhatsAppRequest({
-      department: "visas",
-      phone: visaWhatsAppNumber,
-      employeeName: employeeName,
+      department: dept,
+      phone: targetPhone,
+      employeeName: targetEmp,
       destination: selected?.name_ar || selected?.name || "وجهة سياحية",
-      service: `${activeService?.title_ar || activeService?.title || "خدمة مع إرفاق جواز"}`,
+      service: `${activeService?.title_ar || activeService?.title || (isFlight ? "تذاكر طيران مع جواز" : "خدمة تأشيرة مع جواز")}`,
       message: whatsappMsg,
       details: {
+        "نوع المعاملة": isFlight ? "تذاكر طيران" : "تأشيرات وموافقات",
         "حالة الجواز": "تم تأكيد طلب إرفاق صورة الجواز"
       }
     });
     logWhatsAppClick("destination_service_with_passport", selected?.id, activeService?.id);
-    window.open(`https://wa.me/${visaWhatsAppNumber}?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${targetPhone}?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
     closeDestination();
   };
 

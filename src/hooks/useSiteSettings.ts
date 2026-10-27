@@ -61,7 +61,7 @@ export function useSiteSettings() {
             ...defaultSettings,
             ...data,
             ...localOverrides,
-            whatsapp_tickets: (data as any).whatsapp_tickets || localOverrides.whatsapp_tickets || data.whatsapp_number || defaultSettings.whatsapp_tickets,
+            whatsapp_tickets: (data as any).whatsapp_tickets || localOverrides.whatsapp_tickets || defaultSettings.whatsapp_tickets,
             whatsapp_tickets_name: (data as any).whatsapp_tickets_name || localOverrides.whatsapp_tickets_name || defaultSettings.whatsapp_tickets_name,
             whatsapp_visas: (data as any).whatsapp_visas || localOverrides.whatsapp_visas || defaultSettings.whatsapp_visas,
             whatsapp_visas_name: (data as any).whatsapp_visas_name || localOverrides.whatsapp_visas_name || defaultSettings.whatsapp_visas_name,
