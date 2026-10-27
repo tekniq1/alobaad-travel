@@ -15,7 +15,11 @@ function AdminSettings() {
   
   const [settings, setSettings] = useState({
     id: "",
-    whatsapp_number: "",
+    whatsapp_number: "96876652555",
+    whatsapp_tickets: "96876652555",
+    whatsapp_tickets_name: "مسؤول تذاكر الطيران",
+    whatsapp_visas: "967778383338",
+    whatsapp_visas_name: "مسؤول التأشيرات والموافقات",
     email_address: "",
     address_ar: "",
     address_en: ""
@@ -37,8 +41,21 @@ function AdminSettings() {
         .single();
         
       if (error) throw error;
+      let localOverrides: any = {};
+      try {
+        const stored = localStorage.getItem("alobaad_site_settings");
+        if (stored) localOverrides = JSON.parse(stored);
+      } catch (e) {}
+
       if (data) {
-        setSettings(data);
+        setSettings({
+          ...data,
+          ...localOverrides,
+          whatsapp_tickets: (data as any).whatsapp_tickets || localOverrides.whatsapp_tickets || data.whatsapp_number || "96876652555",
+          whatsapp_tickets_name: (data as any).whatsapp_tickets_name || localOverrides.whatsapp_tickets_name || "مسؤول تذاكر الطيران",
+          whatsapp_visas: (data as any).whatsapp_visas || localOverrides.whatsapp_visas || "967778383338",
+          whatsapp_visas_name: (data as any).whatsapp_visas_name || localOverrides.whatsapp_visas_name || "مسؤول التأشيرات والموافقات",
+        });
         setAdminEmail(data.admin_email || "admin@alobaad.com");
         setAdminPassword(data.admin_password || "123456");
       }
@@ -55,18 +72,27 @@ function AdminSettings() {
     setMessage("");
     
     try {
+      localStorage.setItem("alobaad_site_settings", JSON.stringify({
+        whatsapp_tickets: settings.whatsapp_tickets,
+        whatsapp_tickets_name: settings.whatsapp_tickets_name,
+        whatsapp_visas: settings.whatsapp_visas,
+        whatsapp_visas_name: settings.whatsapp_visas_name,
+      }));
+
+      const payload: any = {
+        ...(settings.id ? { id: settings.id } : {}),
+        whatsapp_number: settings.whatsapp_tickets || settings.whatsapp_number,
+        email_address: settings.email_address,
+        address_ar: settings.address_ar,
+        address_en: settings.address_en,
+        admin_email: adminEmail,
+        admin_password: adminPassword,
+        updated_at: new Date().toISOString()
+      };
+
       const { error } = await supabase
         .from('site_settings')
-        .upsert({
-          ...(settings.id ? { id: settings.id } : {}),
-          whatsapp_number: settings.whatsapp_number,
-          email_address: settings.email_address,
-          address_ar: settings.address_ar,
-          address_en: settings.address_en,
-          admin_email: adminEmail,
-          admin_password: adminPassword,
-          updated_at: new Date().toISOString()
-        });
+        .upsert(payload);
         
       if (error) throw error;
       
@@ -102,22 +128,78 @@ function AdminSettings() {
           <form onSubmit={handleSave} className="p-6">
             <div className="grid gap-6 sm:grid-cols-2 mb-8">
               
-              {/* WhatsApp */}
+              {/* WhatsApp Visas Number & Name */}
               <div className="grid gap-2">
-                <label className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                  <Phone className="size-4 text-slate-400" />
-                  رقم الواتساب
+                <label className="text-sm font-bold text-slate-700 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Phone className="size-4 text-emerald-500" />
+                    رقم واتساب التأشيرات والموافقات الأمنية
+                  </span>
+                  <span className="text-xs font-normal text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+                    قسم التأشيرات
+                  </span>
                 </label>
                 <input 
                   type="text" 
                   dir="ltr"
                   required
-                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 focus:border-[#5CA8DF] focus:outline-none focus:ring-1 focus:ring-[#5CA8DF]/50 text-start"
-                  value={settings.whatsapp_number || ""}
-                  onChange={(e) => setSettings({...settings, whatsapp_number: e.target.value})}
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 text-start font-mono"
+                  value={settings.whatsapp_visas || ""}
+                  onChange={(e) => setSettings({...settings, whatsapp_visas: e.target.value})}
+                  placeholder="967778383338"
+                />
+                <p className="text-xs text-slate-500">الرقم بالصيغة الدولية بدون + (مثال: 967778383338)</p>
+              </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-bold text-slate-700">
+                  اسم موظف / مسؤول قسم التأشيرات والموافقات
+                </label>
+                <input 
+                  type="text" 
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                  value={settings.whatsapp_visas_name || ""}
+                  onChange={(e) => setSettings({...settings, whatsapp_visas_name: e.target.value})}
+                  placeholder="مثال: أحمد - مسؤول التأشيرات"
+                />
+                <p className="text-xs text-slate-500">يظهر هذا الاسم في تقارير المشرف لمتابعة أداء الموظف</p>
+              </div>
+
+              {/* WhatsApp Tickets Number & Name */}
+              <div className="grid gap-2">
+                <label className="text-sm font-bold text-slate-700 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <Phone className="size-4 text-sky-500" />
+                    رقم واتساب تذاكر الطيران
+                  </span>
+                  <span className="text-xs font-normal text-sky-600 bg-sky-50 px-2 py-0.5 rounded-full">
+                    قسم التذاكر
+                  </span>
+                </label>
+                <input 
+                  type="text" 
+                  dir="ltr"
+                  required
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 focus:border-[#5CA8DF] focus:outline-none focus:ring-1 focus:ring-[#5CA8DF]/50 text-start font-mono"
+                  value={settings.whatsapp_tickets || ""}
+                  onChange={(e) => setSettings({...settings, whatsapp_tickets: e.target.value})}
                   placeholder="96876652555"
                 />
-                <p className="text-xs text-slate-500">اكتب الرقم بالصيغة الدولية بدون أصفار أو علامة +</p>
+                <p className="text-xs text-slate-500">الرقم بالصيغة الدولية بدون + (مثال: 96876652555)</p>
+              </div>
+
+              <div className="grid gap-2">
+                <label className="text-sm font-bold text-slate-700">
+                  اسم موظف / مسؤول قسم تذاكر الطيران
+                </label>
+                <input 
+                  type="text" 
+                  className="h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 text-slate-800 focus:border-[#5CA8DF] focus:outline-none focus:ring-1 focus:ring-[#5CA8DF]/50"
+                  value={settings.whatsapp_tickets_name || ""}
+                  onChange={(e) => setSettings({...settings, whatsapp_tickets_name: e.target.value})}
+                  placeholder="مثال: محمد - مسؤول التذاكر"
+                />
+                <p className="text-xs text-slate-500">يظهر هذا الاسم في تقارير المشرف لمتابعة أداء الموظف</p>
               </div>
 
               {/* Email */}

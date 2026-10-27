@@ -187,9 +187,15 @@
     "address_desc": "Ibb, Yemen | Muscat, Oman",
     "email_title": "Email",
     "email_desc": "info@alobaad.com",
-    "phone_title": "Phone / WhatsApp",
+    "phone_title": "Contact & WhatsApp Numbers",
+    "phone_tickets_title": "Flight Tickets Department",
+    "phone_tickets_num": "+968 76652555",
+    "phone_visas_title": "Visas & Security Approvals",
+    "phone_visas_num": "+967 778383338",
     "phone_desc": "+968 76652555",
     "whatsapp_btn": "Message on WhatsApp",
+    "whatsapp_tickets_btn": "Contact Tickets Dept",
+    "whatsapp_visas_btn": "Contact Visas Dept",
     "form_title": "Send Us a Message",
     "form_subtitle": "Contact us directly through this form and we will reply as soon as possible.",
     "name": "Full Name",
@@ -226,5 +232,18 @@
     "login_btn": "Sign In",
     "back_home": "Back to Home",
     "invalid_creds": "Invalid credentials"
+  },
+  "whatsapp_channels": {
+    "title": "Connect with Al-Abbad",
+    "subtitle": "Select a department for faster assistance:",
+    "tickets_title": "Flight Tickets & Bookings",
+    "tickets_desc": "Ticket reservations, fare search, and flight schedules",
+    "tickets_msg": "Hello, I would like to inquire about flight bookings and tickets.",
+    "tickets_num_display": "+968 76652555",
+    "visas_title": "Visas & Security Approvals",
+    "visas_desc": "Entry visas, security clearances, and tourist packages",
+    "visas_msg": "Hello, I would like to inquire about visas and security approvals.",
+    "visas_num_display": "+967 778383338",
+    "chat_now": "Chat Now"
   }
 }

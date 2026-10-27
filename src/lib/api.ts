@@ -63,8 +63,69 @@ export async function fetchDestinations(): Promise<Destination[]> {
   });
 }
 
+export interface RecordRequestParams {
+  department: 'tickets' | 'visas' | 'general';
+  phone?: string;
+  employeeName?: string;
+  destination?: string;
+  service?: string;
+  message?: string;
+  details?: Record<string, any>;
+  customerName?: string;
+  customerPhone?: string;
+}
+
+export async function recordWhatsAppRequest({
+  department,
+  phone,
+  employeeName,
+  destination,
+  service,
+  message,
+  details,
+  customerName,
+  customerPhone,
+}: RecordRequestParams) {
+  try {
+    const assignedPhone = phone || (department === 'tickets' ? '96876652555' : '967778383338');
+    const defaultEmployee = department === 'tickets' ? 'مسؤول التذاكر' : 'مسؤول التأشيرات والموافقات';
+    const finalEmployee = employeeName || defaultEmployee;
+
+    let fullMessage = message || '';
+    if (details && Object.keys(details).length > 0) {
+      const detailsText = Object.entries(details)
+        .filter(([_, v]) => v !== undefined && v !== null && v !== '')
+        .map(([k, v]) => `• ${k}: ${v}`)
+        .join('\n');
+      if (detailsText) {
+        fullMessage += (fullMessage ? '\n\n' : '') + `[تفاصيل إضافية]:\n` + detailsText;
+      }
+    }
+
+    const { data, error } = await supabase.from('contact_requests').insert([
+      {
+        type: department,
+        name: customerName ? `${customerName} (المستلم: ${finalEmployee})` : finalEmployee,
+        phone: customerPhone || assignedPhone,
+        destination: destination || (department === 'tickets' ? 'طيران عام' : 'تأشيرات عامة'),
+        service: service || (department === 'tickets' ? 'طلب استفسار تذاكر طيران' : 'طلب استفسار تأشيرات وموافقات'),
+        message: fullMessage,
+        status: 'new',
+      }
+    ]).select();
+
+    if (error) {
+      console.warn("Could not record to contact_requests:", error);
+    }
+    return data;
+  } catch (err) {
+    console.error("Failed to record request:", err);
+  }
+}
+
 export async function logWhatsAppClick(clickType: string, destinationId?: string, serviceId?: string, details?: any) {
   try {
+    // Also record as a request if it makes sense
     await supabase.from('whatsapp_clicks').insert([
       {
         click_type: clickType,
@@ -74,6 +135,6 @@ export async function logWhatsAppClick(clickType: string, destinationId?: string
       }
     ]);
   } catch (err) {
-    console.error("Failed to log click:", err);
+    // Non-blocking
   }
 }

@@ -4,10 +4,14 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { useQuery } from "@tanstack/react-query";
-import { fetchDestinations, logWhatsAppClick } from "../lib/api";
+import { fetchDestinations, logWhatsAppClick, recordWhatsAppRequest } from "../lib/api";
+import { useSiteSettings } from "../hooks/useSiteSettings";
 
 export function DestinationGrid() {
   const { t, i18n } = useTranslation();
+  const { settings } = useSiteSettings();
+  const visaWhatsAppNumber = settings.whatsapp_visas || "967778383338";
+  const employeeName = settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات";
   const [selected, setSelected] = useState<any | null>(null);
   const [step, setStep] = useState<"services" | "airports" | "security">("services");
   const [activeService, setActiveService] = useState<any | null>(null);
@@ -73,9 +77,17 @@ export function DestinationGrid() {
         setWhatsappMsg(msg);
         setStep("security");
       } else {
-        // Log click
+        // Record request for admin supervision
+        recordWhatsAppRequest({
+          department: "visas",
+          phone: visaWhatsAppNumber,
+          employeeName: employeeName,
+          destination: selected?.name_ar || selected?.name || "وجهة سياحية",
+          service: service.title_ar || service.title || "خدمة تأشيرة/موافقة",
+          message: msg,
+        });
         logWhatsAppClick("destination_service", selected?.id, service.id);
-        window.open(`https://wa.me/96876652555?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+        window.open(`https://wa.me/${visaWhatsAppNumber}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
       }
     }
   };
@@ -87,15 +99,34 @@ export function DestinationGrid() {
       setWhatsappMsg(msg);
       setStep("security");
     } else {
-      // Log click
+      // Record request for admin supervision
+      recordWhatsAppRequest({
+        department: "visas",
+        phone: visaWhatsAppNumber,
+        employeeName: employeeName,
+        destination: selected?.name_ar || selected?.name || "وجهة سياحية",
+        service: `${service.title_ar || service.title} (${airport.name_ar || airport.name_en})`,
+        message: msg,
+      });
       logWhatsAppClick("airport_selection", selected?.id, service.id, { airport_id: airport.id });
-      window.open(`https://wa.me/96876652555?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
+      window.open(`https://wa.me/${visaWhatsAppNumber}?text=${encodeURIComponent(msg)}`, "_blank", "noopener,noreferrer");
     }
   };
 
   const proceedToWhatsApp = () => {
+    recordWhatsAppRequest({
+      department: "visas",
+      phone: visaWhatsAppNumber,
+      employeeName: employeeName,
+      destination: selected?.name_ar || selected?.name || "وجهة سياحية",
+      service: `${activeService?.title_ar || activeService?.title || "خدمة مع إرفاق جواز"}`,
+      message: whatsappMsg,
+      details: {
+        "حالة الجواز": "تم تأكيد طلب إرفاق صورة الجواز"
+      }
+    });
     logWhatsAppClick("destination_service_with_passport", selected?.id, activeService?.id);
-    window.open(`https://wa.me/96876652555?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${visaWhatsAppNumber}?text=${encodeURIComponent(whatsappMsg)}`, "_blank", "noopener,noreferrer");
     closeDestination();
   };
 

@@ -1,10 +1,15 @@
 import { motion } from "motion/react";
 import { useTranslation } from "react-i18next";
-import { MapPin, Mail, Phone, MessageCircle } from "lucide-react";
+import { MapPin, Mail, Phone, MessageCircle, ShieldCheck, Plane } from "lucide-react";
 import { Button } from "./ui/button";
+import { useSiteSettings } from "../hooks/useSiteSettings";
+import { recordWhatsAppRequest } from "../lib/api";
 
 export function ContactSection() {
   const { t } = useTranslation();
+  const { settings } = useSiteSettings();
+  const visasNum = settings.whatsapp_visas || "967778383338";
+  const ticketsNum = settings.whatsapp_tickets || "96876652555";
 
   return (
     <section id="contact" className="relative overflow-hidden bg-muted/30 px-5 py-20 sm:px-8 lg:px-12">
@@ -41,50 +46,111 @@ export function ContactSection() {
               </div>
             </motion.div>
 
+            {/* Department 1: Visas & Security Approvals */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.1 }}
-              className="flex items-start gap-4 rounded-3xl bg-white p-6 shadow-sm border border-border/50"
+              className="flex flex-col gap-3 rounded-3xl bg-white p-5 sm:p-6 shadow-sm border border-emerald-100 hover:border-emerald-300 transition-colors"
             >
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                <Phone className="size-6" />
+              <div className="flex items-start gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                  <ShieldCheck className="size-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="mb-0.5 font-bold text-foreground text-sm sm:text-base">
+                    {t("whatsapp_channels.visas_title")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {t("whatsapp_channels.visas_desc")}
+                  </p>
+                  <p className="text-sm font-semibold text-emerald-700 dir-ltr font-mono" dir="ltr">
+                    +967 778383338
+                  </p>
+                </div>
               </div>
-              <div>
-                <h3 className="mb-1 font-semibold text-foreground">{t("contact.phone_title")}</h3>
-                <p className="text-sm text-muted-foreground" dir="ltr">{t("contact.phone_desc")}</p>
-              </div>
+              <Button asChild size="sm" className="w-full mt-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs">
+                <a 
+                  href={`https://wa.me/${visasNum}?text=${encodeURIComponent(t("whatsapp_channels.visas_msg"))}`}
+                  target="_blank" 
+                  rel="noreferrer"
+                  onClick={() => {
+                    recordWhatsAppRequest({
+                      department: "visas",
+                      phone: visasNum,
+                      employeeName: settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات",
+                      service: "استفسار تأشيرات (صفحة اتصل بنا)",
+                      message: t("whatsapp_channels.visas_msg"),
+                    });
+                  }}
+                >
+                  <MessageCircle className="mr-1.5 size-4" />
+                  {t("contact.whatsapp_visas_btn")}
+                </a>
+              </Button>
             </motion.div>
 
+            {/* Department 2: Flight Tickets */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="flex flex-col gap-3 rounded-3xl bg-white p-5 sm:p-6 shadow-sm border border-sky-100 hover:border-sky-300 transition-colors"
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-sky-50 text-[#0F2A48]">
+                  <Plane className="size-6" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="mb-0.5 font-bold text-foreground text-sm sm:text-base">
+                    {t("whatsapp_channels.tickets_title")}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {t("whatsapp_channels.tickets_desc")}
+                  </p>
+                  <p className="text-sm font-semibold text-sky-800 dir-ltr font-mono" dir="ltr">
+                    +968 76652555
+                  </p>
+                </div>
+              </div>
+              <Button asChild size="sm" className="w-full mt-1 rounded-xl bg-[#0F2A48] hover:bg-[#163a63] text-white font-medium text-xs">
+                <a 
+                  href={`https://wa.me/${ticketsNum}?text=${encodeURIComponent(t("whatsapp_channels.tickets_msg"))}`}
+                  target="_blank" 
+                  rel="noreferrer"
+                  onClick={() => {
+                    recordWhatsAppRequest({
+                      department: "tickets",
+                      phone: ticketsNum,
+                      employeeName: settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران",
+                      service: "استفسار تذاكر (صفحة اتصل بنا)",
+                      message: t("whatsapp_channels.tickets_msg"),
+                    });
+                  }}
+                >
+                  <MessageCircle className="mr-1.5 size-4" />
+                  {t("contact.whatsapp_tickets_btn")}
+                </a>
+              </Button>
+            </motion.div>
+
+            {/* Email */}
             <motion.div
               initial={{ opacity: 0, x: 20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: 0.2 }}
-              className="flex items-start gap-4 rounded-3xl bg-white p-6 shadow-sm border border-border/50"
+              className="flex items-start gap-4 rounded-3xl bg-white p-5 sm:p-6 shadow-sm border border-border/50"
             >
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                 <Mail className="size-6" />
               </div>
               <div>
-                <h3 className="mb-1 font-semibold text-foreground">{t("contact.email_title")}</h3>
+                <h3 className="mb-1 font-semibold text-foreground text-sm sm:text-base">{t("contact.email_title")}</h3>
                 <p className="text-sm text-muted-foreground">{t("contact.email_desc")}</p>
               </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: 0.3 }}
-            >
-              <Button asChild size="lg" className="w-full rounded-2xl bg-[#25D366] hover:bg-[#20b858] text-white">
-                <a href="https://wa.me/96876652555" target="_blank" rel="noreferrer">
-                  <MessageCircle className="mr-2 size-5" />
-                  {t("contact.whatsapp_btn")}
-                </a>
-              </Button>
             </motion.div>
           </div>
 

@@ -16,7 +16,8 @@ export function SiteFooter() {
   const isRtl = i18n.dir() === "rtl";
   const { settings } = useSiteSettings();
 
-  const waNumber = settings.whatsapp_number || "96876652555";
+  const visasNum = settings.whatsapp_visas || "967778383338";
+  const ticketsNum = settings.whatsapp_tickets || "96876652555";
   const WA_MESSAGE = encodeURIComponent(t("hero.wa_msg"));
 
 
@@ -66,15 +67,16 @@ export function SiteFooter() {
             </p>
 
             {/* WhatsApp CTA */}
-            <a
-              href={`https://wa.me/${waNumber}?text=${WA_MESSAGE}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-[#159DD3]/15 px-4 py-3 text-sm font-bold text-[#159DD3] ring-1 ring-[#159DD3]/20 transition-all hover:bg-[#159DD3]/25 hover:ring-[#159DD3]/40 active:scale-[0.97]"
+            <button
+              type="button"
+              onClick={() => {
+                window.dispatchEvent(new CustomEvent("openWhatsAppChannels"));
+              }}
+              className="mt-6 inline-flex items-center gap-2.5 rounded-xl bg-[#159DD3]/15 px-4 py-3 text-sm font-bold text-[#159DD3] ring-1 ring-[#159DD3]/20 transition-all hover:bg-[#159DD3]/25 hover:ring-[#159DD3]/40 active:scale-[0.97] cursor-pointer"
             >
               <WhatsAppIcon className="size-4" />
               {t("footer.contact_us")}
-            </a>
+            </button>
           </div>
 
           {/* Col 2 — Quick links */}
@@ -118,12 +120,32 @@ export function SiteFooter() {
                   {i18n.language === 'ar' ? settings.address_ar : settings.address_en}
                 </span>
               </li>
-              <li className="flex items-center gap-3">
-                <WhatsAppIcon className="size-4 shrink-0 text-[#159DD3]" />
+              <li className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <WhatsAppIcon className="size-4 shrink-0 text-emerald-400" />
+                  <span className="text-xs text-white/40">{t("whatsapp_channels.visas_title")}:</span>
+                </div>
                 <a
-                  href={`https://wa.me/${waNumber}`} target="_blank" rel="noreferrer"
+                  href={`https://wa.me/${visasNum}?text=${encodeURIComponent(t("whatsapp_channels.visas_msg"))}`}
+                  target="_blank"
+                  rel="noreferrer"
                   dir="ltr"
-                  className="text-sm font-medium text-white/60 transition-colors hover:text-[#159DD3]"
+                  className="ps-6 text-xs sm:text-sm font-semibold text-white/80 transition-colors hover:text-emerald-400 font-mono"
+                >
+                  +967 778383338
+                </a>
+              </li>
+              <li className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <WhatsAppIcon className="size-4 shrink-0 text-[#159DD3]" />
+                  <span className="text-xs text-white/40">{t("whatsapp_channels.tickets_title")}:</span>
+                </div>
+                <a
+                  href={`https://wa.me/${ticketsNum}?text=${encodeURIComponent(t("whatsapp_channels.tickets_msg"))}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  dir="ltr"
+                  className="ps-6 text-xs sm:text-sm font-semibold text-white/80 transition-colors hover:text-[#159DD3] font-mono"
                 >
                   +968 76652555
                 </a>

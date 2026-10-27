@@ -3,9 +3,11 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 import { motion, AnimatePresence } from "motion/react";
+import { useSiteSettings } from "../hooks/useSiteSettings";
 
 export function FlightQuote() {
   const { t, i18n } = useTranslation();
+  const { settings } = useSiteSettings();
   const [tripType, setTripType] = useState<"round" | "oneway">("round");
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
@@ -36,14 +38,32 @@ export function FlightQuote() {
     
     message += `${t("flight.wa_msg_6")}${travelers}`;
     
-    // Log the click
-    import("../lib/api").then(({ logWhatsAppClick }) => {
+    const ticketNumber = settings.whatsapp_tickets || "96876652555";
+    const employeeName = settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران";
+
+    // Record request into database for admin supervision
+    import("../lib/api").then(({ recordWhatsAppRequest, logWhatsAppClick }) => {
+      recordWhatsAppRequest({
+        department: "tickets",
+        phone: ticketNumber,
+        employeeName: employeeName,
+        destination: `${from || "غير محدد"} ➔ ${to || "غير محدد"}`,
+        service: `حجز طيران (${tripTypeString} - ${travelers} مسافر)`,
+        message,
+        details: {
+          "خط السير": `${from || "غير محدد"} ➔ ${to || "غير محدد"}`,
+          "نوع الرحلة": tripTypeString,
+          "تاريخ الذهاب": date || "غير محدد",
+          "تاريخ العودة": tripType === "round" ? (returnDate || "غير محدد") : "ذهاب فقط",
+          "عدد المسافرين": `${travelers} مسافر`
+        }
+      });
       logWhatsAppClick("flight_quote_form", undefined, undefined, {
         from, to, tripType, date, returnDate, travelers
       });
     });
     
-    window.open(`https://wa.me/96876652555?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
+    window.open(`https://wa.me/${ticketNumber}?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer");
   };
 
   return (

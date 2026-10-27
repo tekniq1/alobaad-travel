@@ -28,9 +28,9 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
 
   const navItems = [
     { label: "الرئيسية", icon: LayoutDashboard, href: "/admin/dashboard" },
+    { label: "تتبع الطلبات والمشرف", icon: MessageCircle, href: "/admin/requests" },
     { label: "الوجهات السياحية", icon: Map, href: "/admin/destinations" },
     { label: "الرحلات والطيران", icon: Plane, href: "/admin/flights" },
-    { label: "طلبات التواصل", icon: MessageCircle, href: "/admin/requests" },
     { label: "إعدادات الموقع", icon: Settings, href: "/admin/settings" },
   ];
 
@@ -43,7 +43,7 @@ export function AdminLayout({ children, title }: AdminLayoutProps) {
     <div className="flex h-full flex-col bg-[#0F1F2C] text-white">
       {/* Brand */}
       <div className="flex h-20 shrink-0 items-center justify-center border-b border-white/10 px-6">
-        <Link href="/" className="flex items-center gap-3">
+        <Link to="/" className="flex items-center gap-3">
           <Globe className="size-6 text-[#5CA8DF]" />
           <span className="text-lg font-bold">العباد للإدارة</span>
         </Link>
