@@ -81,6 +81,8 @@ export function ContactSection() {
                       department: "visas",
                       phone: visasNum,
                       employeeName: settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات",
+                      customerName: "عميل تواصل مباشر",
+                      customerPhone: "",
                       service: "استفسار تأشيرات (صفحة اتصل بنا)",
                       message: t("whatsapp_channels.visas_msg"),
                     });
@@ -126,6 +128,8 @@ export function ContactSection() {
                       department: "tickets",
                       phone: ticketsNum,
                       employeeName: settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران",
+                      customerName: "عميل تواصل مباشر",
+                      customerPhone: "",
                       service: "استفسار تذاكر (صفحة اتصل بنا)",
                       message: t("whatsapp_channels.tickets_msg"),
                     });

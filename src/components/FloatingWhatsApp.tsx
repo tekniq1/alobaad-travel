@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { WhatsAppIcon } from "../components/WhatsAppIcon";
 import { useTranslation } from "react-i18next";
 import { useSiteSettings } from "../hooks/useSiteSettings";
-import { Plane, ShieldCheck, X, MessageSquare, ArrowLeft, ArrowRight } from "lucide-react";
+import { Plane, ShieldCheck, X, MessageSquare, ArrowLeft, ArrowRight, Phone } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { logWhatsAppClick, recordWhatsAppRequest } from "../lib/api";
 import { getWhatsAppUrl, cleanWhatsAppPhone } from "../lib/utils";
@@ -11,6 +11,7 @@ export function FloatingWhatsApp() {
   const { t, i18n } = useTranslation();
   const { settings } = useSiteSettings();
   const [isOpen, setIsOpen] = useState(false);
+  const [userPhone, setUserPhone] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
 
   const isRtl = i18n.dir() === "rtl";
@@ -43,15 +44,22 @@ export function FloatingWhatsApp() {
       ? (settings.whatsapp_tickets_name || "مسؤول تذاكر الطيران")
       : (settings.whatsapp_visas_name || "مسؤول التأشيرات والموافقات");
 
+    let finalMsg = defaultMsg;
+    if (userPhone.trim()) {
+      finalMsg += `\n\n[بيانات العميل للتواصل]:\n📱 رقم الهاتف: ${userPhone.trim()}`;
+    }
+
     recordWhatsAppRequest({
       department: type,
       phone: number,
       employeeName: employee,
+      customerName: userPhone.trim() ? "عميل واتساب" : "عميل مباشر",
+      customerPhone: userPhone.trim() || "",
       service: type === "tickets" ? "استفسار تذاكر طيران (عبر الزر العائم)" : "استفسار تأشيرات وموافقات (عبر الزر العائم)",
-      message: defaultMsg,
+      message: finalMsg,
     });
-    logWhatsAppClick(`floating_whatsapp_${type}`);
-    window.open(getWhatsAppUrl(number, defaultMsg, type === "tickets" ? '968' : '967'), "_blank", "noopener,noreferrer");
+    logWhatsAppClick(`floating_whatsapp_${type}`, undefined, undefined, { customerPhone: userPhone.trim() });
+    window.open(getWhatsAppUrl(number, finalMsg, type === "tickets" ? '968' : '967'), "_blank", "noopener,noreferrer");
     setIsOpen(false);
   };
 
@@ -94,8 +102,24 @@ export function FloatingWhatsApp() {
               </button>
             </div>
 
+            {/* Optional Customer Phone Input */}
+            <div className="mt-3 rounded-xl border border-slate-200/80 bg-slate-50 p-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+              <div className="flex items-center gap-1.5 mb-1.5 text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                <Phone className="size-3 text-emerald-600" />
+                <span>رقم هاتفك للتواصل (اختياري للرد عليك):</span>
+              </div>
+              <input
+                type="tel"
+                value={userPhone}
+                onChange={(e) => setUserPhone(e.target.value)}
+                placeholder="مثال: 77XXXXXXX أو +967..."
+                className="w-full rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-xs text-slate-800 outline-none focus:border-emerald-500 font-mono text-right focus:text-left dark:bg-slate-900 dark:border-slate-700 dark:text-slate-200"
+                dir="ltr"
+              />
+            </div>
+
             {/* Channels List */}
-            <div className="mt-3 flex flex-col gap-2.5">
+            <div className="mt-2.5 flex flex-col gap-2.5">
               {/* Channel 1: Visas & Security Approvals */}
               <button
                 onClick={() =>

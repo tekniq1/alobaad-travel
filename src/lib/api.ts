@@ -128,7 +128,7 @@ export async function recordWhatsAppRequest({
       {
         type: department,
         name: finalCustomerName,
-        phone: finalCustomerPhone || `مباشر (+${assignedPhone})`,
+        phone: finalCustomerPhone || '',
         destination: destination || (department === 'tickets' ? 'طيران عام' : 'تأشيرات عامة'),
         service: service || (department === 'tickets' ? 'طلب استفسار تذاكر طيران' : 'طلب استفسار تأشيرات وموافقات'),
         message: fullMessage.trim(),
